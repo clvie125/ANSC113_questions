@@ -2,25 +2,25 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>題庫管理系統</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<h2>Please enter the code</h2>
-<input type="password" id="pwd">
-<button onclick="checkPassword()">login</button>
+    <div class="navbar">
+        <a href="index.html" class="active">首頁</a>
+        <a href="list.html">題庫列表</a>
+        <a href="add.html">新增題目</a>
+    </div>
 
-<script>
-const PASSWORD = "0519"; // 你設定的密碼
+    <h1>題庫管理系統</h1>
 
-function checkPassword() {
-    if (document.getElementById("pwd").value === PASSWORD) {
-        window.location.href = "main.html";
-    } else {
-        alert("wrong code");
-    }
-}
-</script>
+    <div class="container" style="text-align:center;">
+        <p>請選擇功能：</p>
+        <a href="list.html"><button>查看題庫</button></a>
+        <a href="add.html"><button>新增題目</button></a>
+    </div>
 
 </body>
 </html>
