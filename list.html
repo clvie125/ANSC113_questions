@@ -1,31 +1,58 @@
-<script>
-    if (sessionStorage.getItem("auth") !== "yes") {
-        window.location.href = "login.html";
-    }
-</script>
-
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>題庫列表</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- DataTables（表格 + 篩選 + 勾選） -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 </head>
 
 <body>
 
-    <div class="navbar">
-        <a href="list.html" class="active">題庫列表</a>
-        <a href="add.html">新增題目</a>
-    </div>
+<script>
+    if (sessionStorage.getItem("auth") !== "yes") {
+        window.location.href = "login.html";
+    }
+</script>
 
-    <h1>題庫列表</h1>
+<div class="navbar">
+    <a href="index.html">首頁</a>
+    <a href="list.html" class="active">題庫列表</a>
+    <a href="add.html">新增題目</a>
+</div>
 
-    <div class="container">
-        <div id="question-list"></div>
-    </div>
+<h1>題庫列表</h1>
 
-    <script src="script.js"></script>
+<div class="container">
+
+    <button onclick="exportWord()">匯出 Word</button>
+    <button onclick="saveEdits()">儲存修改</button>
+
+    <table id="questionTable" class="display" style="width:100%; margin-top:20px;">
+        <thead>
+            <tr>
+                <th>Click</th>
+                <th>NO.</th>
+                <th>Question</th>
+                <th>Type</th>
+                <th>Type_simplify</th>
+                <th>Answer</th>
+                <th>Topic</th>
+                <th>Picture</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
