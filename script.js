@@ -3,11 +3,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbw3OslMpIhzquDfiXWuz9CB
 // 讀取題庫
 async function loadQuestions() {
     const res = await fetch(API_URL);
-    const data = await res.json();
+    const data = await res.json();   // data = 2D array
 
-    const headers = data[0];
-    const rows = data.slice(1);
+    const headers = data[0];         // 第一列：表頭
+    const rows = data.slice(1);      // 其他列：資料
 
+    // 轉成物件格式
     return rows.map(row => {
         let obj = {};
         headers.forEach((h, i) => obj[h] = row[i] || "");
@@ -15,8 +16,7 @@ async function loadQuestions() {
     });
 }
 
-
-// 顯示題目
+// 顯示題庫
 async function renderQuestions() {
     const list = document.getElementById("question-list");
     const questions = await loadQuestions();
@@ -28,21 +28,7 @@ async function renderQuestions() {
     `).join("");
 }
 
-// 寫回 Google Sheet
-async function saveQuestions(updatedRows) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?valueInputOption=RAW&key=${API_KEY}`;
-
-    await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ values: updatedRows })
-    });
-
-    alert("已儲存！");
-    renderQuestions();
-}
-
-// 新增題目
+// 新增題目（POST 到 GAS）
 async function addQuestion() {
     const body = [
         document.getElementById("q_no").value,
@@ -64,6 +50,5 @@ async function addQuestion() {
     renderQuestions();
 }
 
-// 頁面載入時顯示題目
+// 頁面載入時顯示題庫
 renderQuestions();
-
