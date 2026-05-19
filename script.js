@@ -60,7 +60,7 @@ async function saveEdits() {
     alert("已儲存修改！");
 }
 
-// 匯出 Word（題型分段）
+// export WORD
 async function exportWord() {
     const rows = document.querySelectorAll("#questionTable tbody tr");
     let selected = [];
@@ -127,10 +127,12 @@ async function exportWord() {
         ]
     });
 
+    // 下載 Word
     docx.Packer.toBlob(doc).then(blob => {
         saveAs(blob, "題庫.docx");
     });
 }
+
 
 // 啟動表格
 if (document.getElementById("questionTable")) {
