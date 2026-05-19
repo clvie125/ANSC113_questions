@@ -8,17 +8,22 @@
 
 <h1>題庫管理</h1>
 
+<!-- 題目列表 -->
 <div id="question-list"></div>
 
 <hr>
 
+<!-- 新增題目區塊（你問的這段放這裡） -->
 <h2>新增題目</h2>
-<input id="new_no" placeholder="NO_exam">
-<input id="new_question" placeholder="Question">
-<input id="new_type" placeholder="Type">
-<input id="new_answer" placeholder="Answer">
-<button onclick="addQuestion()">新增</button>
+<div id="editor">
+    <input id="q_no" placeholder="NO_exam">
+    <input id="q_text" placeholder="Question">
+    <input id="q_type" placeholder="Type">
+    <input id="q_ans" placeholder="Answer">
+    <button onclick="addQuestion()">新增題目</button>
+</div>
 
+<!-- 引用 script.js（非常重要） -->
 <script src="script.js"></script>
 
 </body>
