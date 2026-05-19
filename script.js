@@ -24,8 +24,8 @@ async function renderQuestions() {
     const questions = await loadQuestions();
 
     list.innerHTML = questions.map((q, i) => `
-        <div>
-            <b>${q.NO_exam}</b> ${q.Question}
+        <div style="margin-bottom:10px;">
+            <b>${q["NO."]}</b> — ${q.Question}
             <button onclick="deleteQuestion(${i})">刪除</button>
         </div>
     `).join("");
@@ -41,24 +41,32 @@ async function saveQuestions(updatedRows) {
         body: JSON.stringify({ values: updatedRows })
     });
 
-    alert("Saved!");
+    alert("已儲存！");
     renderQuestions();
 }
 
 // 新增題目
 async function addQuestion() {
-    const no = document.getElementById("new_no").value;
-    const q = document.getElementById("new_question").value;
-    const type = document.getElementById("new_type").value;
-    const ans = document.getElementById("new_answer").value;
+    const no = document.getElementById("q_no").value;
+    const question = document.getElementById("q_question").value;
+    const type = document.getElementById("q_type").value;
+    const type_s = document.getElementById("q_type_s").value;
+    const answer = document.getElementById("q_answer").value;
+    const topic = document.getElementById("q_topic").value;
+    const pic = document.getElementById("q_pic").value;
+    const date = document.getElementById("q_date").value;
 
     const questions = await loadQuestions();
 
-    const headers = ["NO_exam", "Question", "Type", "Answer"];
+    const headers = ["NO.", "Question", "Type", "Type_simplify", "Answer", "Topic", "Picture No.", "Add Date"];
+
     const updated = [
         headers,
-        ...questions.map(q => [q.NO_exam, q.Question, q.Type, q.Answer]),
-        [no, q, type, ans]
+        ...questions.map(q => [
+            q["NO."], q.Question, q.Type, q.Type_simplify,
+            q.Answer, q.Topic, q["Picture No."], q["Add Date"]
+        ]),
+        [no, question, type, type_s, answer, topic, pic, date]
     ];
 
     await saveQuestions(updated);
@@ -70,10 +78,14 @@ async function deleteQuestion(index) {
 
     questions.splice(index, 1);
 
-    const headers = ["NO_exam", "Question", "Type", "Answer"];
+    const headers = ["NO.", "Question", "Type", "Type_simplify", "Answer", "Topic", "Picture No.", "Add Date"];
+
     const updated = [
         headers,
-        ...questions.map(q => [q.NO_exam, q.Question, q.Type, q.Answer])
+        ...questions.map(q => [
+            q["NO."], q.Question, q.Type, q.Type_simplify,
+            q.Answer, q.Topic, q["Picture No."], q["Add Date"]
+        ])
     ];
 
     await saveQuestions(updated);
@@ -81,3 +93,4 @@ async function deleteQuestion(index) {
 
 // 頁面載入時顯示題目
 renderQuestions();
+
