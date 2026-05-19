@@ -5,11 +5,13 @@
     <title>題庫列表</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- DataTables（表格 + 篩選 + 勾選） -->
+    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+    <!-- Word 匯出套件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.3.2/docx.min.js"></script>
 </head>
 
 <body>
@@ -36,7 +38,7 @@
     <table id="questionTable" class="display" style="width:100%; margin-top:20px;">
         <thead>
             <tr>
-                <th>Click</th>
+                <th>選取</th>
                 <th>NO.</th>
                 <th>Question</th>
                 <th>Type</th>
