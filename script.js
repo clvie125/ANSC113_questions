@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbw3OslMpIhzquDfiXWuz9CBPjW0tUZmkfnDIy149Bjomsh4dKkgYVP8LM2oJ-eSq6zK/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwBoEHHTHGzI-7oZeEPP8n3R4Rxr2V6JA27WH5XLsLAZK-RXFT3GbnVrZ5bveC5ea0-/exec";
 
 // 讀取題庫
 async function loadQuestions() {
