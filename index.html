@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+<h2>Please enter the code</h2>
+<input type="password" id="pwd">
+<button onclick="checkPassword()">login</button>
+
+<script>
+const PASSWORD = "0519"; // 你設定的密碼
+
+function checkPassword() {
+    if (document.getElementById("pwd").value === PASSWORD) {
+        window.location.href = "main.html";
+    } else {
+        alert("wrong code");
+    }
+}
+</script>
+
+</body>
+</html>
