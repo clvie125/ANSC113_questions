@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登入</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container" style="max-width:400px; margin-top:80px;">
+        <h2>請輸入密碼</h2>
+
+        <div class="input-row">
+            <label>密碼</label>
+            <input id="password" type="password">
+        </div>
+
+        <button onclick="login()">登入</button>
+    </div>
+
+    <script>
+        function login() {
+            const pwd = document.getElementById("password").value;
+
+            // 你自己的密碼
+            const correct = "113";
+
+            if (pwd === correct) {
+                sessionStorage.setItem("auth", "yes");
+                window.location.href = "index.html"; // 登入後進入首頁
+            } else {
+                alert("密碼錯誤");
+            }
+        }
+    </script>
+
+</body>
+</html>
