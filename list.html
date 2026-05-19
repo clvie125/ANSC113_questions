@@ -1,3 +1,9 @@
+<script>
+    if (sessionStorage.getItem("auth") !== "yes") {
+        window.location.href = "login.html";
+    }
+</script>
+
 <!DOCTYPE html>
 <html>
 <head>
