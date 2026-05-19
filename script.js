@@ -51,4 +51,28 @@ async function addQuestion() {
 }
 
 // 頁面載入時顯示題庫
-renderQuestions();
+async function renderQuestionsTable() {
+    const questions = await loadQuestions();
+    const tbody = document.getElementById("table-body");
+
+    tbody.innerHTML = questions.map((q, i) => `
+        <tr>
+            <td><input type="checkbox" class="row-check"></td>
+            <td contenteditable="true">${q["NO."]}</td>
+            <td contenteditable="true">${q.Question}</td>
+            <td contenteditable="true">${q.Type}</td>
+            <td contenteditable="true">${q.Type_simplify}</td>
+            <td contenteditable="true">${q.Answer}</td>
+            <td contenteditable="true">${q.Topic}</td>
+            <td contenteditable="true">${q.Picture}</td>
+            <td contenteditable="true">${q["Add Date"]}</td>
+        </tr>
+    `).join("");
+
+    new DataTable("#questionTable");
+}
+
+if (document.getElementById("questionTable")) {
+    renderQuestionsTable();
+}
+
