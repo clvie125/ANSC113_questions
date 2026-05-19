@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新增題目</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <a href="list.html">題庫列表</a>
+        <a href="add.html" class="active">新增題目</a>
+    </div>
+
+    <h1>新增題目</h1>
+
+    <div class="container">
+
+        <div class="input-row">
+            <label>NO.</label>
+            <input id="q_no">
+        </div>
+
+        <div class="input-row">
+            <label>Question</label>
+            <input id="q_question">
+        </div>
+
+        <div class="input-row">
+            <label>Type</label>
+            <input id="q_type">
+        </div>
+
+        <div class="input-row">
+            <label>Type_simplify</label>
+            <input id="q_type_s">
+        </div>
+
+        <div class="input-row">
+            <label>Answer</label>
+            <input id="q_answer">
+        </div>
+
+        <div class="input-row">
+            <label>Topic</label>
+            <input id="q_topic">
+        </div>
+
+        <div class="input-row">
+            <label>Picture No.</label>
+            <input id="q_pic">
+        </div>
+
+        <div class="input-row">
+            <label>Add Date</label>
+            <input id="q_date" type="date">
+        </div>
+
+        <button onclick="addQuestion()">新增題目</button>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
