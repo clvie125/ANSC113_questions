@@ -27,7 +27,7 @@ async function loadQuestions() {
     const headers = raw[0];       // 欄位名稱
     const rows = raw.slice(1);    // 資料列
 
-    // 轉成物件陣列
+    // ⭐ 把每一列轉成物件
     allQuestions = rows.map(row => {
         let obj = {};
         headers.forEach((h, i) => {
