@@ -4,7 +4,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzA4b-kNA-k5c3bEPjhddJtuGXkTzn57zfLWP4OnrEH9D_08LpkZxnbcyYCt6fV8tEC/exec";
 
 let allQuestions = [];
-let selectedQuestions = []; // 暫存清單（sessionStorage）
+let selectedQuestions = [];
 let dataTable = null;
 let editingNo = null;
 
@@ -18,11 +18,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ===========================
-   讀取題庫
+   讀取題庫 + 轉換格式
 =========================== */
 async function loadQuestions() {
     const res = await fetch(API_URL + "?action=read");
-    allQuestions = await res.json();
+    const raw = await res.json();
+
+    const headers = raw[0];       // 欄位名稱
+    const rows = raw.slice(1);    // 資料列
+
+    // 轉成物件陣列
+    allQuestions = rows.map(row => {
+        let obj = {};
+        headers.forEach((h, i) => {
+            obj[h] = row[i];
+        });
+        return obj;
+    });
 
     renderTable(allQuestions);
     fillSelectOptions();
@@ -49,16 +61,11 @@ function initSelect2() {
    填入下拉選單選項
 =========================== */
 function fillSelectOptions() {
-    const topics = [...new Set(allQuestions.map(q => q.Topic).filter(x => x))];
-    const types = [...new Set(allQuestions.map(q => q.Type_simplify).filter(x => x))];
+    const topics = [...new Set(allQuestions.map(q => q["Topic"]).filter(x => x))];
+    const types = [...new Set(allQuestions.map(q => q["Type_simplify"]).filter(x => x))];
 
-    topics.forEach(t => {
-        $("#topic-select").append(new Option(t, t));
-    });
-
-    types.forEach(t => {
-        $("#type-select").append(new Option(t, t));
-    });
+    topics.forEach(t => $("#topic-select").append(new Option(t, t)));
+    types.forEach(t => $("#type-select").append(new Option(t, t)));
 }
 
 /* ===========================
@@ -71,11 +78,11 @@ function filterTable() {
     let filtered = allQuestions;
 
     if (selectedTopics.length > 0) {
-        filtered = filtered.filter(q => selectedTopics.includes(q.Topic));
+        filtered = filtered.filter(q => selectedTopics.includes(q["Topic"]));
     }
 
     if (selectedTypes.length > 0) {
-        filtered = filtered.filter(q => selectedTypes.includes(q.Type_simplify));
+        filtered = filtered.filter(q => selectedTypes.includes(q["Type_simplify"]));
     }
 
     renderTable(filtered);
@@ -94,11 +101,11 @@ function renderTable(list) {
         tr.innerHTML = `
             <td><input type="checkbox" class="row-check" data-no="${q["NO."]}"></td>
             <td>${q["NO."]}</td>
-            <td>${q.Question}</td>
-            <td>${q.Type}</td>
-            <td>${q.Type_simplify}</td>
-            <td>${q.Answer}</td>
-            <td>${q.Topic}</td>
+            <td>${q["Question"]}</td>
+            <td>${q["Type"]}</td>
+            <td>${q["Type_simplify"]}</td>
+            <td>${q["Answer"]}</td>
+            <td>${q["Topic"]}</td>
             <td>${q["Picture No."] || ""}</td>
             <td>${q["Add Date"] || ""}</td>
             <td><button onclick="openEditModal('${q["NO."]}')">修改</button></td>
@@ -107,9 +114,7 @@ function renderTable(list) {
         tbody.appendChild(tr);
     });
 
-    if (dataTable) {
-        dataTable.destroy();
-    }
+    if (dataTable) dataTable.destroy();
     dataTable = new DataTable("#questionTable");
 }
 
@@ -118,11 +123,6 @@ function renderTable(list) {
 =========================== */
 function addSelectedQuestions() {
     const checks = document.querySelectorAll(".row-check:checked");
-
-    if (checks.length === 0) {
-        alert("請先勾選題目");
-        return;
-    }
 
     checks.forEach(chk => {
         const no = chk.dataset.no;
@@ -155,7 +155,7 @@ function openSelectedModal() {
         listDiv.innerHTML = "<p>尚未加入任何題目</p>";
     } else {
         listDiv.innerHTML = selectedQuestions
-            .map(q => `<p>${q["NO."]}. ${q.Question}</p>`)
+            .map(q => `<p>${q["NO."]}. ${q["Question"]}</p>`)
             .join("");
     }
 
@@ -175,9 +175,9 @@ async function exportWord() {
         return;
     }
 
-    let tf = selectedQuestions.filter(q => q.Type_simplify === "True / False");
-    let mc = selectedQuestions.filter(q => q.Type_simplify === "Multiple choices");
-    let match = selectedQuestions.filter(q => q.Type_simplify === "Match");
+    let tf = selectedQuestions.filter(q => q["Type_simplify"] === "True / False");
+    let mc = selectedQuestions.filter(q => q["Type_simplify"] === "Multiple choices");
+    let match = selectedQuestions.filter(q => q["Type_simplify"] === "Match");
 
     const doc = new docx.Document();
 
@@ -190,7 +190,7 @@ async function exportWord() {
                     heading: docx.HeadingLevel.HEADING_1
                 }),
                 ...list.map(q =>
-                    new docx.Paragraph(`${q["NO."]}. ${q.Question}`)
+                    new docx.Paragraph(`${q["NO."]}. ${q["Question"]}`)
                 )
             ]
         });
@@ -207,7 +207,7 @@ async function exportWord() {
                 heading: docx.HeadingLevel.HEADING_1
             }),
             ...selectedQuestions.map(q =>
-                new docx.Paragraph(`${q["NO."]}: ${q.Answer}`)
+                new docx.Paragraph(`${q["NO."]}: ${q["Answer"]}`)
             )
         ]
     });
@@ -227,19 +227,19 @@ function openEditModal(no) {
 
     const form = `
         <label>Question</label>
-        <textarea id="edit-question" style="width:100%; height:80px;">${q.Question}</textarea>
+        <textarea id="edit-question" style="width:100%; height:80px;">${q["Question"]}</textarea>
 
         <label>Answer</label>
-        <input id="edit-answer" value="${q.Answer}" style="width:100%;">
+        <input id="edit-answer" value="${q["Answer"]}" style="width:100%;">
 
         <label>Topic</label>
-        <input id="edit-topic" value="${q.Topic}" style="width:100%;">
+        <input id="edit-topic" value="${q["Topic"]}" style="width:100%;">
 
         <label>Type</label>
-        <input id="edit-type" value="${q.Type}" style="width:100%;">
+        <input id="edit-type" value="${q["Type"]}" style="width:100%;">
 
         <label>Type_simplify</label>
-        <input id="edit-type-s" value="${q.Type_simplify}" style="width:100%;">
+        <input id="edit-type-s" value="${q["Type_simplify"]}" style="width:100%;">
     `;
 
     document.getElementById("edit-form").innerHTML = form;
@@ -254,8 +254,6 @@ function closeEditModal() {
    儲存修改（更新 Google Sheet）
 =========================== */
 async function saveEdit() {
-    if (!editingNo) return;
-
     const data = {
         no: editingNo,
         question: document.getElementById("edit-question").value,
@@ -272,5 +270,5 @@ async function saveEdit() {
 
     alert("修改完成！");
     closeEditModal();
-    await loadQuestions();
+    loadQuestions();
 }
