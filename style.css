@@ -94,3 +94,72 @@ button:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* ====== 左側章節列表（可折疊） ====== */
+
+.layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* 左側章節面板 */
+.left-panel {
+    width: 260px;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: 80vh;
+    overflow-y: auto;
+    transition: width 0.3s ease, padding 0.3s ease;
+    position: relative;
+}
+
+/* 折疊後 */
+.left-panel.collapsed {
+    width: 55px;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: hidden;
+}
+
+/* 折疊按鈕 */
+#toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #3498db;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* 章節項目 */
+.chapter-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chapter-item:hover {
+    background: #f0f0f0;
+}
+
+.chapter-selected {
+    background: #dfefff;
+    font-weight: bold;
+}
+
+/* 右側內容 */
+.right-panel {
+    flex: 1;
+}
