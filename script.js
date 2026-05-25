@@ -24,15 +24,12 @@ async function loadQuestions() {
     const res = await fetch(API_URL + "?action=read");
     const raw = await res.json();
 
-    const headers = raw[0];       // 欄位名稱
-    const rows = raw.slice(1);    // 資料列
+    const headers = raw[0];
+    const rows = raw.slice(1);
 
-    // ⭐ 把每一列轉成物件
     allQuestions = rows.map(row => {
         let obj = {};
-        headers.forEach((h, i) => {
-            obj[h] = row[i];
-        });
+        headers.forEach((h, i) => obj[h] = row[i]);
         return obj;
     });
 
@@ -44,17 +41,8 @@ async function loadQuestions() {
    Select2 初始化
 =========================== */
 function initSelect2() {
-    $("#topic-select").select2({
-        placeholder: "選擇章節",
-        width: "100%"
-    });
-
-    $("#type-select").select2({
-        placeholder: "選擇題型",
-        width: "100%"
-    });
-
-    $("#topic-select, #type-select").on("change", filterTable);
+    $("#topic-select").select2({ placeholder: "選擇章節", width: "100%" });
+    $("#type-select").select2({ placeholder: "選擇題型", width: "100%" });
 }
 
 /* ===========================
@@ -69,9 +57,9 @@ function fillSelectOptions() {
 }
 
 /* ===========================
-   篩選題目
+   按下「篩選」才更新表格
 =========================== */
-function filterTable() {
+function applyFilter() {
     const selectedTopics = $("#topic-select").val() || [];
     const selectedTypes = $("#type-select").val() || [];
 
@@ -119,7 +107,7 @@ function renderTable(list) {
 }
 
 /* ===========================
-   加入題目（暫存清單）
+   加入題目
 =========================== */
 function addSelectedQuestions() {
     const checks = document.querySelectorAll(".row-check:checked");
@@ -138,15 +126,7 @@ function addSelectedQuestions() {
 }
 
 /* ===========================
-   載入暫存清單
-=========================== */
-function loadSelectedFromSession() {
-    const data = sessionStorage.getItem("selectedQuestions");
-    if (data) selectedQuestions = JSON.parse(data);
-}
-
-/* ===========================
-   查看所選題目（彈跳視窗）
+   查看所選題目
 =========================== */
 function openSelectedModal() {
     const listDiv = document.getElementById("selected-list");
@@ -167,7 +147,7 @@ function closeSelectedModal() {
 }
 
 /* ===========================
-   匯出 Word（題型分段）
+   匯出 Word
 =========================== */
 async function exportWord() {
     if (selectedQuestions.length === 0) {
@@ -185,13 +165,8 @@ async function exportWord() {
         if (list.length === 0) return;
         doc.addSection({
             children: [
-                new docx.Paragraph({
-                    text: title,
-                    heading: docx.HeadingLevel.HEADING_1
-                }),
-                ...list.map(q =>
-                    new docx.Paragraph(`${q["NO."]}. ${q["Question"]}`)
-                )
+                new docx.Paragraph({ text: title, heading: docx.HeadingLevel.HEADING_1 }),
+                ...list.map(q => new docx.Paragraph(`${q["NO."]}. ${q["Question"]}`))
             ]
         });
     }
@@ -202,23 +177,16 @@ async function exportWord() {
 
     doc.addSection({
         children: [
-            new docx.Paragraph({
-                text: "答案",
-                heading: docx.HeadingLevel.HEADING_1
-            }),
-            ...selectedQuestions.map(q =>
-                new docx.Paragraph(`${q["NO."]}: ${q["Answer"]}`)
-            )
+            new docx.Paragraph({ text: "答案", heading: docx.HeadingLevel.HEADING_1 }),
+            ...selectedQuestions.map(q => new docx.Paragraph(`${q["NO."]}: ${q["Answer"]}`))
         ]
     });
 
-    docx.Packer.toBlob(doc).then(blob => {
-        saveAs(blob, "題庫.docx");
-    });
+    docx.Packer.toBlob(doc).then(blob => saveAs(blob, "題庫.docx"));
 }
 
 /* ===========================
-   修改題目（彈跳視窗）
+   修改題目
 =========================== */
 function openEditModal(no) {
     editingNo = no;
@@ -251,7 +219,7 @@ function closeEditModal() {
 }
 
 /* ===========================
-   儲存修改（更新 Google Sheet）
+   儲存修改
 =========================== */
 async function saveEdit() {
     const data = {
