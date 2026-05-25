@@ -15,14 +15,38 @@ async function loadQuestions() {
     });
 }
 
-// 題庫表格呈現
-async function renderQuestionsTable() {
-    const questions = await loadQuestions();
-    const tbody = document.getElementById("table-body");
+let allQuestions = [];
+let currentTopic = null;
 
-    tbody.innerHTML = questions.map((q, i) => `
-        <tr data-row="${i + 2}">
-            <td><input type="checkbox" class="row-check"></td>
+// 讀取題庫後分類章節
+async function initChapters() {
+    allQuestions = await loadQuestions();
+
+    const topics = [...new Set(allQuestions.map(q => q.Topic))];
+    const chapterList = document.getElementById("chapter-list");
+
+    chapterList.innerHTML = topics.map(t => `
+        <div class="chapter-item" onclick="selectChapter('${t}')">${t}</div>
+    `).join("");
+
+    updateStats();
+}
+
+// 點章節 → 顯示該章節題目
+function selectChapter(topic) {
+    currentTopic = topic;
+
+    document.querySelectorAll(".chapter-item").forEach(el => {
+        el.classList.remove("chapter-selected");
+        if (el.innerText === topic) el.classList.add("chapter-selected");
+    });
+
+    const filtered = allQuestions.filter(q => q.Topic === topic);
+
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = filtered.map((q, i) => `
+        <tr>
+            <td><input type="checkbox" class="row-check" data-topic="${q.Topic}" data-no="${q["NO."]}"></td>
             <td contenteditable="true">${q["NO."]}</td>
             <td contenteditable="true">${q.Question}</td>
             <td contenteditable="true">${q.Type}</td>
@@ -36,6 +60,52 @@ async function renderQuestionsTable() {
 
     new DataTable("#questionTable");
 }
+
+// 更新右側統計
+function updateStats() {
+    const stats = {};
+
+    document.querySelectorAll(".row-check").forEach(chk => {
+        if (chk.checked) {
+            const topic = chk.dataset.topic;
+            stats[topic] = (stats[topic] || 0) + 1;
+        }
+    });
+
+    const statsBox = document.getElementById("stats-box");
+    statsBox.innerHTML = Object.keys(stats).map(t => `
+        <div class="stats-item">
+            <span>${t}</span>
+            <span class="stats-number" onclick="showSelected('${t}')">${stats[t]}</span>
+        </div>
+    `).join("");
+}
+
+// 彈跳視窗顯示該章節已選題目
+function showSelected(topic) {
+    const modal = document.getElementById("modal");
+    const content = document.getElementById("modal-content");
+
+    const selected = [...document.querySelectorAll(".row-check")]
+        .filter(chk => chk.checked && chk.dataset.topic === topic)
+        .map(chk => chk.dataset.no);
+
+    content.innerHTML = `
+        <h3>${topic} 已選題目</h3>
+        ${selected.map(n => `<p>題號：${n}</p>`).join("")}
+        <button onclick="closeModal()">關閉</button>
+    `;
+
+    modal.style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// 啟動
+initChapters();
+
 
 // 儲存修改
 async function saveEdits() {
