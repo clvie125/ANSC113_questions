@@ -1,7 +1,12 @@
+/* ===========================
+   設定：Google Apps Script API
+=========================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbzA4b-kNA-k5c3bEPjhddJtuGXkTzn57zfLWP4OnrEH9D_08LpkZxnbcyYCt6fV8tEC/exec";
 
 let allQuestions = [];
 let selectedQuestions = []; // 暫存清單（sessionStorage）
+let dataTable = null;
+let editingNo = null;
 
 /* ===========================
    初始化
@@ -44,8 +49,8 @@ function initSelect2() {
    填入下拉選單選項
 =========================== */
 function fillSelectOptions() {
-    const topics = [...new Set(allQuestions.map(q => q.Topic))];
-    const types = [...new Set(allQuestions.map(q => q.Type_simplify))];
+    const topics = [...new Set(allQuestions.map(q => q.Topic).filter(x => x))];
+    const types = [...new Set(allQuestions.map(q => q.Type_simplify).filter(x => x))];
 
     topics.forEach(t => {
         $("#topic-select").append(new Option(t, t));
@@ -83,7 +88,7 @@ function renderTable(list) {
     const tbody = document.getElementById("table-body");
     tbody.innerHTML = "";
 
-    list.forEach((q, i) => {
+    list.forEach(q => {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
@@ -94,15 +99,18 @@ function renderTable(list) {
             <td>${q.Type_simplify}</td>
             <td>${q.Answer}</td>
             <td>${q.Topic}</td>
-            <td>${q["Picture No."]}</td>
-            <td>${q["Add Date"]}</td>
+            <td>${q["Picture No."] || ""}</td>
+            <td>${q["Add Date"] || ""}</td>
             <td><button onclick="openEditModal('${q["NO."]}')">修改</button></td>
         `;
 
         tbody.appendChild(tr);
     });
 
-    new DataTable("#questionTable");
+    if (dataTable) {
+        dataTable.destroy();
+    }
+    dataTable = new DataTable("#questionTable");
 }
 
 /* ===========================
@@ -111,11 +119,16 @@ function renderTable(list) {
 function addSelectedQuestions() {
     const checks = document.querySelectorAll(".row-check:checked");
 
+    if (checks.length === 0) {
+        alert("請先勾選題目");
+        return;
+    }
+
     checks.forEach(chk => {
         const no = chk.dataset.no;
         const q = allQuestions.find(x => x["NO."] == no);
 
-        if (!selectedQuestions.some(x => x["NO."] == no)) {
+        if (q && !selectedQuestions.some(x => x["NO."] == no)) {
             selectedQuestions.push(q);
         }
     });
@@ -169,6 +182,7 @@ async function exportWord() {
     const doc = new docx.Document();
 
     function addSection(title, list) {
+        if (list.length === 0) return;
         doc.addSection({
             children: [
                 new docx.Paragraph({
@@ -206,11 +220,10 @@ async function exportWord() {
 /* ===========================
    修改題目（彈跳視窗）
 =========================== */
-let editingNo = null;
-
 function openEditModal(no) {
     editingNo = no;
     const q = allQuestions.find(x => x["NO."] == no);
+    if (!q) return;
 
     const form = `
         <label>Question</label>
@@ -241,6 +254,8 @@ function closeEditModal() {
    儲存修改（更新 Google Sheet）
 =========================== */
 async function saveEdit() {
+    if (!editingNo) return;
+
     const data = {
         no: editingNo,
         question: document.getElementById("edit-question").value,
@@ -257,5 +272,5 @@ async function saveEdit() {
 
     alert("修改完成！");
     closeEditModal();
-    loadQuestions();
+    await loadQuestions();
 }
