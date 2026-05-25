@@ -5,9 +5,11 @@
     <title>題庫列表</title>
     <link rel="stylesheet" href="style.css">
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <!-- Select2 -->
@@ -19,56 +21,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
-        /* ====== 左右分欄 ====== */
-        .layout {
-            display: flex;
-            gap: 20px;
-            width: 95%;
-            margin: 0 auto;
-        }
-
-        /* ====== 左側（可折疊） ====== */
-        .left-panel {
-            width: 260px;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            height: 85vh;
-            overflow-y: auto;
-            transition: width 0.3s ease, padding 0.3s ease;
-            position: relative;
-        }
-
-        .left-panel.collapsed {
-            width: 55px;
-            padding-left: 10px;
-            padding-right: 10px;
-            overflow: hidden;
-        }
-
-        #toggle-btn {
-            position: absolute;
-            top: 10px;
-            right: -15px;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: none;
-            background: #3498db;
-            color: white;
-            cursor: pointer;
-            font-size: 18px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        /* ====== Select2 主題色客製化 ====== */
+        /* Select2 主題色 */
         .select2-container--default .select2-selection--multiple {
             border: 1px solid #3498db;
             min-height: 42px;
             padding: 5px;
         }
-
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             background-color: #3498db;
             border: none;
@@ -76,62 +34,34 @@
             padding: 3px 8px;
             border-radius: 4px;
         }
-
         .select2-container--default .select2-results__option--highlighted {
             background-color: #2980b9 !important;
             color: white;
         }
-
         .select2-container--default .select2-results__option--selected {
             background-color: #3498db !important;
             color: white;
         }
 
-        /* ====== 右側 ====== */
-        .right-panel {
-            flex: 1;
+        /* 篩選區塊 */
+        #filter-panel {
+            display: none;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
         }
 
-        /* ====== 上方功能鍵 ====== */
         .top-actions {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
         }
-
-        /* ====== 彈跳視窗 ====== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background: white;
-            width: 70%;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .close-btn {
-            float: right;
-            cursor: pointer;
-            font-size: 20px;
-            color: #555;
-        }
     </style>
 </head>
 
 <body>
-
-<script>
-    if (sessionStorage.getItem("auth") !== "yes") {
-        window.location.href = "login.html";
-    }
-</script>
 
 <div class="navbar">
     <a href="index.html">首頁</a>
@@ -141,49 +71,42 @@
 
 <h1>題庫列表</h1>
 
-<div class="layout">
-
-    <!-- 左側：折疊 + Select2 -->
-    <div class="left-panel" id="left-panel">
-        <button id="toggle-btn">☰</button>
-
-        <label>選擇章節</label>
-        <select id="topic-select" multiple="multiple" style="width:100%; margin-bottom:20px;"></select>
-
-        <label>選擇題型</label>
-        <select id="type-select" multiple="multiple" style="width:100%;"></select>
-    </div>
-
-    <!-- 右側：功能鍵 + 表格 -->
-    <div class="right-panel">
-
-        <div class="top-actions">
-            <button onclick="addSelectedQuestions()">加入題目</button>
-            <button onclick="openSelectedModal()">查看所選題目</button>
-        </div>
-
-        <table id="questionTable" class="display" style="width:100%; margin-top:20px;">
-            <thead>
-                <tr>
-                    <th>選取</th>
-                    <th>NO.</th>
-                    <th>Question</th>
-                    <th>Type</th>
-                    <th>Type_simplify</th>
-                    <th>Answer</th>
-                    <th>Topic</th>
-                    <th>Picture</th>
-                    <th>Date</th>
-                    <th>修改</th>
-                </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
-
-    </div>
+<!-- 上方功能鍵 -->
+<div class="top-actions">
+    <button onclick="toggleFilter()">篩選題目</button>
+    <button onclick="addSelectedQuestions()">加入題目</button>
+    <button onclick="openSelectedModal()">查看所選題目</button>
 </div>
 
-<!-- 彈跳視窗：查看所選題目 -->
+<!-- 篩選區塊（預設隱藏） -->
+<div id="filter-panel">
+    <label>選擇章節</label>
+    <select id="topic-select" multiple="multiple" style="width:100%; margin-bottom:20px;"></select>
+
+    <label>選擇題型</label>
+    <select id="type-select" multiple="multiple" style="width:100%;"></select>
+</div>
+
+<!-- 題目表格 -->
+<table id="questionTable" class="display" style="width:100%; margin-top:20px;">
+    <thead>
+        <tr>
+            <th>選取</th>
+            <th>NO.</th>
+            <th>Question</th>
+            <th>Type</th>
+            <th>Type_simplify</th>
+            <th>Answer</th>
+            <th>Topic</th>
+            <th>Picture</th>
+            <th>Date</th>
+            <th>修改</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<!-- 查看所選題目 -->
 <div class="modal" id="selected-modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeSelectedModal()">✖</span>
@@ -193,7 +116,7 @@
     </div>
 </div>
 
-<!-- 彈跳視窗：修改題目 -->
+<!-- 修改題目 -->
 <div class="modal" id="edit-modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeEditModal()">✖</span>
@@ -205,16 +128,11 @@
 
 <script src="script.js"></script>
 
-<!-- 左側折疊功能 -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const leftPanel = document.getElementById("left-panel");
-    const toggleBtn = document.getElementById("toggle-btn");
-
-    toggleBtn.addEventListener("click", () => {
-        leftPanel.classList.toggle("collapsed");
-    });
-});
+function toggleFilter() {
+    const panel = document.getElementById("filter-panel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
 </script>
 
 </body>
