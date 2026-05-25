@@ -34,13 +34,14 @@
             padding: 3px 8px;
             border-radius: 4px;
         }
-        .select2-container--default .select2-results__option--highlighted {
-            background-color: #2980b9 !important;
-            color: white;
-        }
-        .select2-container--default .select2-results__option--selected {
-            background-color: #3498db !important;
-            color: white;
+
+        /* 刪除按鈕更明顯 */
+        .select2-selection__choice__remove {
+            color: white !important;
+            font-size: 18px !important;
+            margin-right: 6px !important;
+            font-weight: bold !important;
+            text-shadow: 0 0 3px rgba(0,0,0,0.4);
         }
 
         /* 篩選區塊 */
@@ -85,6 +86,8 @@
 
     <label>選擇題型</label>
     <select id="type-select" multiple="multiple" style="width:100%;"></select>
+
+    <button onclick="applyFilter()" style="margin-top:15px;">篩選</button>
 </div>
 
 <!-- 題目表格 -->
