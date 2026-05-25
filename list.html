@@ -15,29 +15,55 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
+        /* ====== 左右分欄 ====== */
         .layout {
             display: flex;
             gap: 20px;
+            padding: 20px;
         }
 
+        /* ====== 左側章節列表（可折疊） ====== */
         .left-panel {
-            width: 30%;
+            width: 260px;
             background: #ffffff;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             height: 80vh;
             overflow-y: auto;
+            transition: width 0.3s ease, padding 0.3s ease;
+            position: relative;
         }
 
-        .right-panel {
-            width: 70%;
+        .left-panel.collapsed {
+            width: 55px;
+            padding-left: 10px;
+            padding-right: 10px;
+            overflow: hidden;
+        }
+
+        #toggle-btn {
+            position: absolute;
+            top: 10px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
 
         .chapter-item {
             padding: 10px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .chapter-item:hover {
@@ -49,11 +75,16 @@
             font-weight: bold;
         }
 
+        /* ====== 右側 ====== */
+        .right-panel {
+            flex: 1;
+        }
+
         .stats-box {
             background: #ffffff;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             margin-bottom: 20px;
         }
 
@@ -70,7 +101,7 @@
             font-weight: bold;
         }
 
-        /* 彈跳視窗 */
+        /* ====== 彈跳視窗 ====== */
         .modal {
             display: none;
             position: fixed;
@@ -113,8 +144,6 @@
         <div id="chapter-list"></div>
     </div>
 
-
-
     <!-- 右側：統計 + 題目表格 -->
     <div class="right-panel">
 
@@ -146,6 +175,18 @@
 </div>
 
 <script src="script.js"></script>
+
+<!-- 左側折疊功能 -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const leftPanel = document.getElementById("left-panel");
+    const toggleBtn = document.getElementById("toggle-btn");
+
+    toggleBtn.addEventListener("click", () => {
+        leftPanel.classList.toggle("collapsed");
+    });
+});
+</script>
 
 </body>
 </html>
