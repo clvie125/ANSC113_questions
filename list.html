@@ -81,6 +81,13 @@
             flex: 1;
         }
 
+        /* ====== 上方功能鍵 ====== */
+        .top-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .stats-box {
             background: #ffffff;
             padding: 15px;
@@ -145,8 +152,14 @@
         <div id="chapter-list"></div>
     </div>
 
-    <!-- 右側：統計 + 題目表格 -->
+    <!-- 右側：功能鍵 + 統計 + 題目表格 -->
     <div class="right-panel">
+
+        <!-- 功能鍵移到上方 -->
+        <div class="top-actions">
+            <button onclick="exportWord()">匯出 Word</button>
+            <button onclick="saveEdits()">儲存修改</button>
+        </div>
 
         <div class="stats-box" id="stats-box"></div>
 
