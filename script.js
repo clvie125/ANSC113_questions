@@ -1,169 +1,171 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzA4b-kNA-k5c3bEPjhddJtuGXkTzn57zfLWP4OnrEH9D_08LpkZxnbcyYCt6fV8tEC/exec";
 
-// 讀取題庫
-async function loadQuestions() {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-
-    const headers = data[0];
-    const rows = data.slice(1);
-
-    return rows.map(row => {
-        let obj = {};
-        headers.forEach((h, i) => obj[h] = row[i] || "");
-        return obj;
-    });
-}
-
 let allQuestions = [];
-let currentTopic = null;
+let selectedQuestions = []; // 暫存清單（sessionStorage）
 
-// 讀取題庫後分類章節
-async function initChapters() {
-    allQuestions = await loadQuestions();
+/* ===========================
+   初始化
+=========================== */
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadQuestions();
+    initSelect2();
+    loadSelectedFromSession();
+});
 
-    const topics = [...new Set(allQuestions.map(q => q.Topic))];
-    const chapterList = document.getElementById("chapter-list");
+/* ===========================
+   讀取題庫
+=========================== */
+async function loadQuestions() {
+    const res = await fetch(API_URL + "?action=read");
+    allQuestions = await res.json();
 
-    chapterList.innerHTML = topics.map(t => `
-        <div class="chapter-item" onclick="selectChapter('${t}')">${t}</div>
-    `).join("");
-
-    updateStats();
+    renderTable(allQuestions);
+    fillSelectOptions();
 }
 
-// 點章節 → 顯示該章節題目
-function selectChapter(topic) {
-    currentTopic = topic;
-
-    document.querySelectorAll(".chapter-item").forEach(el => {
-        el.classList.remove("chapter-selected");
-        if (el.innerText === topic) el.classList.add("chapter-selected");
+/* ===========================
+   Select2 初始化
+=========================== */
+function initSelect2() {
+    $("#topic-select").select2({
+        placeholder: "選擇章節",
+        width: "100%"
     });
 
-    const filtered = allQuestions.filter(q => q.Topic === topic);
+    $("#type-select").select2({
+        placeholder: "選擇題型",
+        width: "100%"
+    });
 
+    $("#topic-select, #type-select").on("change", filterTable);
+}
+
+/* ===========================
+   填入下拉選單選項
+=========================== */
+function fillSelectOptions() {
+    const topics = [...new Set(allQuestions.map(q => q.Topic))];
+    const types = [...new Set(allQuestions.map(q => q.Type_simplify))];
+
+    topics.forEach(t => {
+        $("#topic-select").append(new Option(t, t));
+    });
+
+    types.forEach(t => {
+        $("#type-select").append(new Option(t, t));
+    });
+}
+
+/* ===========================
+   篩選題目
+=========================== */
+function filterTable() {
+    const selectedTopics = $("#topic-select").val() || [];
+    const selectedTypes = $("#type-select").val() || [];
+
+    let filtered = allQuestions;
+
+    if (selectedTopics.length > 0) {
+        filtered = filtered.filter(q => selectedTopics.includes(q.Topic));
+    }
+
+    if (selectedTypes.length > 0) {
+        filtered = filtered.filter(q => selectedTypes.includes(q.Type_simplify));
+    }
+
+    renderTable(filtered);
+}
+
+/* ===========================
+   渲染題目表格
+=========================== */
+function renderTable(list) {
     const tbody = document.getElementById("table-body");
-    tbody.innerHTML = filtered.map((q, i) => `
-        <tr>
-            <td><input type="checkbox" class="row-check" data-topic="${q.Topic}" data-no="${q["NO."]}"></td>
-            <td contenteditable="true">${q["NO."]}</td>
-            <td contenteditable="true">${q.Question}</td>
-            <td contenteditable="true">${q.Type}</td>
-            <td contenteditable="true">${q.Type_simplify}</td>
-            <td contenteditable="true">${q.Answer}</td>
-            <td contenteditable="true">${q.Topic}</td>
-            <td contenteditable="true">${q["Picture No."]}</td>
-            <td contenteditable="true">${q["Add Date"]}</td>
-        </tr>
-    `).join("");
+    tbody.innerHTML = "";
+
+    list.forEach((q, i) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td><input type="checkbox" class="row-check" data-no="${q["NO."]}"></td>
+            <td>${q["NO."]}</td>
+            <td>${q.Question}</td>
+            <td>${q.Type}</td>
+            <td>${q.Type_simplify}</td>
+            <td>${q.Answer}</td>
+            <td>${q.Topic}</td>
+            <td>${q["Picture No."]}</td>
+            <td>${q["Add Date"]}</td>
+            <td><button onclick="openEditModal('${q["NO."]}')">修改</button></td>
+        `;
+
+        tbody.appendChild(tr);
+    });
 
     new DataTable("#questionTable");
 }
 
-// 更新右側統計
-function updateStats() {
-    const stats = {};
+/* ===========================
+   加入題目（暫存清單）
+=========================== */
+function addSelectedQuestions() {
+    const checks = document.querySelectorAll(".row-check:checked");
 
-    document.querySelectorAll(".row-check").forEach(chk => {
-        if (chk.checked) {
-            const topic = chk.dataset.topic;
-            stats[topic] = (stats[topic] || 0) + 1;
+    checks.forEach(chk => {
+        const no = chk.dataset.no;
+        const q = allQuestions.find(x => x["NO."] == no);
+
+        if (!selectedQuestions.some(x => x["NO."] == no)) {
+            selectedQuestions.push(q);
         }
     });
 
-    const statsBox = document.getElementById("stats-box");
-    statsBox.innerHTML = Object.keys(stats).map(t => `
-        <div class="stats-item">
-            <span>${t}</span>
-            <span class="stats-number" onclick="showSelected('${t}')">${stats[t]}</span>
-        </div>
-    `).join("");
+    sessionStorage.setItem("selectedQuestions", JSON.stringify(selectedQuestions));
+    alert("已加入題目！");
 }
 
-// 彈跳視窗顯示該章節已選題目
-function showSelected(topic) {
-    const modal = document.getElementById("modal");
-    const content = document.getElementById("modal-content");
-
-    const selected = [...document.querySelectorAll(".row-check")]
-        .filter(chk => chk.checked && chk.dataset.topic === topic)
-        .map(chk => chk.dataset.no);
-
-    content.innerHTML = `
-        <h3>${topic} 已選題目</h3>
-        ${selected.map(n => `<p>題號：${n}</p>`).join("")}
-        <button onclick="closeModal()">關閉</button>
-    `;
-
-    modal.style.display = "block";
+/* ===========================
+   載入暫存清單
+=========================== */
+function loadSelectedFromSession() {
+    const data = sessionStorage.getItem("selectedQuestions");
+    if (data) selectedQuestions = JSON.parse(data);
 }
 
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
-}
+/* ===========================
+   查看所選題目（彈跳視窗）
+=========================== */
+function openSelectedModal() {
+    const listDiv = document.getElementById("selected-list");
 
-// 啟動
-initChapters();
-
-
-// 儲存修改
-async function saveEdits() {
-    const rows = document.querySelectorAll("#questionTable tbody tr");
-
-    for (let tr of rows) {
-        const checked = tr.querySelector(".row-check").checked;
-        if (!checked) continue;
-
-        const rowNumber = tr.dataset.row;
-        const values = [...tr.children].slice(1).map(td => td.innerText);
-
-        await fetch(API_URL + "?action=update", {
-            method: "POST",
-            body: JSON.stringify({
-                row: Number(rowNumber),
-                values: values
-            })
-        });
+    if (selectedQuestions.length === 0) {
+        listDiv.innerHTML = "<p>尚未加入任何題目</p>";
+    } else {
+        listDiv.innerHTML = selectedQuestions
+            .map(q => `<p>${q["NO."]}. ${q.Question}</p>`)
+            .join("");
     }
 
-    alert("已儲存修改！");
+    document.getElementById("selected-modal").style.display = "block";
 }
 
-// export WORD
+function closeSelectedModal() {
+    document.getElementById("selected-modal").style.display = "none";
+}
+
+/* ===========================
+   匯出 Word（題型分段）
+=========================== */
 async function exportWord() {
-    const rows = document.querySelectorAll("#questionTable tbody tr");
-    let selected = [];
-
-    rows.forEach(tr => {
-        if (tr.querySelector(".row-check").checked) {
-            const tds = tr.querySelectorAll("td");
-            selected.push({
-                no: tds[1].innerText,
-                question: tds[2].innerText,
-                type: tds[3].innerText,
-                type_s: tds[4].innerText,
-                answer: tds[5].innerText
-            });
-        }
-    });
-
-    if (selected.length === 0) {
-        alert("請先勾選題目！");
+    if (selectedQuestions.length === 0) {
+        alert("沒有題目可匯出！");
         return;
     }
 
-    // 分類
-    let tf = selected.filter(q => q.type_s === "True / False");
-    let mc = selected.filter(q => q.type_s === "Multiple choices");
-    let match = selected.filter(q => q.type_s === "Match");
+    let tf = selectedQuestions.filter(q => q.Type_simplify === "True / False");
+    let mc = selectedQuestions.filter(q => q.Type_simplify === "Multiple choices");
+    let match = selectedQuestions.filter(q => q.Type_simplify === "Match");
 
-    // 隨機排序
-    tf.sort(() => Math.random() - 0.5);
-    mc.sort(() => Math.random() - 0.5);
-    match.sort(() => Math.random() - 0.5);
-
-    // Word 文件
     const doc = new docx.Document();
 
     function addSection(title, list) {
@@ -174,7 +176,7 @@ async function exportWord() {
                     heading: docx.HeadingLevel.HEADING_1
                 }),
                 ...list.map(q =>
-                    new docx.Paragraph(`${q.no}. ${q.question}`)
+                    new docx.Paragraph(`${q["NO."]}. ${q.Question}`)
                 )
             ]
         });
@@ -184,37 +186,76 @@ async function exportWord() {
     addSection("Multiple Choice", mc);
     addSection("Match", match);
 
-    // 最後一頁答案
     doc.addSection({
         children: [
             new docx.Paragraph({
                 text: "答案",
                 heading: docx.HeadingLevel.HEADING_1
             }),
-            ...selected.map(q =>
-                new docx.Paragraph(`${q.no}: ${q.answer}`)
+            ...selectedQuestions.map(q =>
+                new docx.Paragraph(`${q["NO."]}: ${q.Answer}`)
             )
         ]
     });
 
-    // 下載 Word
     docx.Packer.toBlob(doc).then(blob => {
         saveAs(blob, "題庫.docx");
     });
 }
 
+/* ===========================
+   修改題目（彈跳視窗）
+=========================== */
+let editingNo = null;
 
-// 啟動表格
-if (document.getElementById("questionTable")) {
-    renderQuestionsTable();
+function openEditModal(no) {
+    editingNo = no;
+    const q = allQuestions.find(x => x["NO."] == no);
+
+    const form = `
+        <label>Question</label>
+        <textarea id="edit-question" style="width:100%; height:80px;">${q.Question}</textarea>
+
+        <label>Answer</label>
+        <input id="edit-answer" value="${q.Answer}" style="width:100%;">
+
+        <label>Topic</label>
+        <input id="edit-topic" value="${q.Topic}" style="width:100%;">
+
+        <label>Type</label>
+        <input id="edit-type" value="${q.Type}" style="width:100%;">
+
+        <label>Type_simplify</label>
+        <input id="edit-type-s" value="${q.Type_simplify}" style="width:100%;">
+    `;
+
+    document.getElementById("edit-form").innerHTML = form;
+    document.getElementById("edit-modal").style.display = "block";
 }
 
-// 左側章節折疊功能
-document.addEventListener("DOMContentLoaded", () => {
-    const leftPanel = document.getElementById("left-panel");
-    const toggleBtn = document.getElementById("toggle-btn");
+function closeEditModal() {
+    document.getElementById("edit-modal").style.display = "none";
+}
 
-    toggleBtn.addEventListener("click", () => {
-        leftPanel.classList.toggle("collapsed");
+/* ===========================
+   儲存修改（更新 Google Sheet）
+=========================== */
+async function saveEdit() {
+    const data = {
+        no: editingNo,
+        question: document.getElementById("edit-question").value,
+        answer: document.getElementById("edit-answer").value,
+        topic: document.getElementById("edit-topic").value,
+        type: document.getElementById("edit-type").value,
+        type_s: document.getElementById("edit-type-s").value
+    };
+
+    await fetch(API_URL + "?action=update", {
+        method: "POST",
+        body: JSON.stringify(data)
     });
-});
+
+    alert("修改完成！");
+    closeEditModal();
+    loadQuestions();
+}
