@@ -77,7 +77,7 @@ function applyFilter() {
 }
 
 /* ===========================
-   渲染題目表格
+   渲染題目表格（已修正 DataTable 不更新問題）
 =========================== */
 function renderTable(list) {
     const tbody = document.getElementById("table-body");
@@ -102,8 +102,14 @@ function renderTable(list) {
         tbody.appendChild(tr);
     });
 
-    if (dataTable) dataTable.destroy();
-    dataTable = new DataTable("#questionTable");
+    if (dataTable) {
+        dataTable.destroy();
+    }
+
+    dataTable = new DataTable("#questionTable", {
+        destroy: true,
+        autoWidth: false
+    });
 }
 
 /* ===========================
