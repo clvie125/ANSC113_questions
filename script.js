@@ -208,3 +208,13 @@ async function exportWord() {
 if (document.getElementById("questionTable")) {
     renderQuestionsTable();
 }
+
+// 左側章節折疊功能
+document.addEventListener("DOMContentLoaded", () => {
+    const leftPanel = document.getElementById("left-panel");
+    const toggleBtn = document.getElementById("toggle-btn");
+
+    toggleBtn.addEventListener("click", () => {
+        leftPanel.classList.toggle("collapsed");
+    });
+});
