@@ -7,43 +7,43 @@
 
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-    <!-- Word Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
         :root {
-            --blue:        #2563eb;
-            --blue-hover:  #1e40af;
-            --blue-light:  #eff6ff;
-            --gray-50:     #f9fafb;
-            --gray-100:    #f3f4f6;
-            --gray-200:    #e5e7eb;
-            --gray-400:    #9ca3af;
-            --gray-600:    #4b5563;
-            --gray-800:    #1f2937;
-            --green-light: #dcfce7;
-            --green-text:  #15803d;
-            --amber-light: #fef3c7;
-            --amber-text:  #b45309;
-            --purple-light:#ede9fe;
-            --purple-text: #6d28d9;
+            --blue:        #3498db;
+            --blue-hover:  #2980b9;
+            --blue-light:  #ebf5fb;
+            --blue-dark:   #1a5276;
+            --teal:        #1abc9c;
+            --teal-light:  #e8f8f5;
+            --teal-dark:   #148f77;
+            --orange:      #e67e22;
+            --orange-light:#fef5e7;
+            --orange-dark: #ca6f1e;
+            --purple:      #9b59b6;
+            --purple-light:#f5eef8;
+            --purple-dark: #7d3c98;
+            --navy:        #2c3e50;
+            --gray-50:     #f8f9fa;
+            --gray-100:    #ecf0f1;
+            --gray-200:    #dde1e3;
+            --gray-400:    #95a5a6;
+            --gray-600:    #5d6d7e;
+            --gray-800:    #2c3e50;
             --radius:      8px;
-            --sidebar-w:   220px;
+            --sidebar-w:   230px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'IBM Plex Sans', system-ui, sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             background: var(--gray-50);
             color: var(--gray-800);
             min-height: 100vh;
@@ -51,103 +51,133 @@
 
         /* ── Navbar ── */
         .navbar {
-            background: #0f172a;
+            background: var(--navy);
             padding: 0 24px;
             display: flex;
             align-items: center;
-            height: 52px;
+            height: 54px;
             gap: 4px;
         }
         .navbar .brand {
             color: white;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 16px;
             margin-right: 28px;
-            letter-spacing: -0.3px;
         }
         .navbar a {
-            color: rgba(255,255,255,.55);
+            color: rgba(255,255,255,.6);
             text-decoration: none;
-            padding: 6px 13px;
+            padding: 6px 14px;
             border-radius: 6px;
-            font-size: 13.5px;
+            font-size: 14px;
             transition: all .15s;
         }
-        .navbar a:hover  { background: rgba(255,255,255,.1);  color: white; }
-        .navbar a.active { background: rgba(255,255,255,.15); color: white; }
+        .navbar a:hover  { background: rgba(255,255,255,.12); color: white; }
+        .navbar a.active {
+            background: var(--blue);
+            color: white;
+        }
 
         /* ── Layout ── */
         .layout {
             display: flex;
-            min-height: calc(100vh - 52px);
+            min-height: calc(100vh - 54px);
         }
 
         /* ── Sidebar ── */
         .sidebar {
             width: var(--sidebar-w);
             background: white;
-            border-right: 1px solid var(--gray-200);
+            border-right: 2px solid var(--blue-light);
             padding: 20px 14px 24px;
             flex-shrink: 0;
             position: sticky;
             top: 0;
-            height: calc(100vh - 52px);
+            height: calc(100vh - 54px);
             overflow-y: auto;
         }
-        .sidebar-section { margin-bottom: 22px; }
+        .sidebar-section { margin-bottom: 24px; }
         .sidebar-section h3 {
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 600;
-            color: var(--gray-400);
+            color: var(--blue);
             text-transform: uppercase;
-            letter-spacing: 0.9px;
-            margin-bottom: 8px;
-            padding-left: 6px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            padding: 4px 8px;
+            background: var(--blue-light);
+            border-radius: 5px;
+            border-left: 3px solid var(--blue);
         }
 
         .filter-option {
             display: flex;
             align-items: center;
-            gap: 7px;
-            padding: 4px 6px;
+            gap: 8px;
+            padding: 5px 8px;
             border-radius: 6px;
             cursor: pointer;
+            transition: background .12s;
         }
-        .filter-option:hover { background: var(--gray-100); }
+        .filter-option:hover { background: var(--blue-light); }
+        .filter-option.active-filter { background: var(--blue-light); }
+
         .filter-option input[type="checkbox"] {
             accent-color: var(--blue);
-            width: 14px; height: 14px;
+            width: 15px; height: 15px;
             cursor: pointer; flex-shrink: 0;
         }
         .filter-option label {
-            cursor: pointer; font-size: 12.5px;
-            color: var(--gray-600); flex: 1;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: var(--gray-600);
+            flex: 1;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .filter-count {
-            font-size: 11px; color: var(--gray-400);
+            font-size: 11.5px;
+            color: white;
+            background: var(--blue);
+            padding: 1px 6px;
+            border-radius: 10px;
             font-family: 'IBM Plex Mono', monospace;
+            font-weight: 500;
+        }
+        .filter-count.zero {
+            background: var(--gray-200);
+            color: var(--gray-400);
         }
 
-        .sidebar-btn {
+        .sidebar-divider {
+            border: none;
+            border-top: 1px dashed var(--gray-200);
+            margin: 8px 0 12px;
+        }
+
+        .sidebar-clear {
             width: 100%;
             padding: 7px;
             border-radius: var(--radius);
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
+            background: white;
+            color: var(--gray-400);
+            border: 1px dashed var(--gray-200);
             transition: all .15s;
-            margin-top: 5px;
+            margin-top: 4px;
         }
-        .sidebar-btn-primary {
-            background: var(--blue); color: white; border: none;
+        .sidebar-clear:hover {
+            color: var(--orange);
+            border-color: var(--orange);
         }
-        .sidebar-btn-primary:hover { background: var(--blue-hover); }
-        .sidebar-btn-ghost {
-            background: white; color: var(--gray-600);
-            border: 1px solid var(--gray-200);
+
+        .active-filter-label {
+            font-size: 12px;
+            color: var(--blue);
+            padding: 4px 8px;
+            display: none;
         }
-        .sidebar-btn-ghost:hover { background: var(--gray-100); }
 
         /* ── Main ── */
         .main { flex: 1; padding: 24px; min-width: 0; }
@@ -156,22 +186,27 @@
             display: flex; align-items: center;
             justify-content: space-between; margin-bottom: 18px;
         }
-        .page-header h1 { font-size: 19px; font-weight: 600; }
+        .page-header h1 {
+            font-size: 20px; font-weight: 600;
+            color: var(--navy);
+        }
 
         .btn {
-            padding: 7px 14px; border-radius: var(--radius);
-            font-size: 13px; font-weight: 500; cursor: pointer;
-            border: 1px solid transparent; transition: all .15s;
+            padding: 8px 16px; border-radius: var(--radius);
+            font-size: 14px; font-weight: 500; cursor: pointer;
+            border: none; transition: all .15s;
             display: inline-flex; align-items: center; gap: 5px;
             text-decoration: none;
         }
         .btn-primary { background: var(--blue); color: white; }
         .btn-primary:hover { background: var(--blue-hover); }
+        .btn-success { background: var(--teal); color: white; }
+        .btn-success:hover { background: var(--teal-dark); }
         .btn-outline {
             background: white; color: var(--gray-600);
-            border-color: var(--gray-200);
+            border: 1px solid var(--gray-200);
         }
-        .btn-outline:hover { background: var(--gray-100); border-color: var(--gray-400); }
+        .btn-outline:hover { background: var(--gray-100); }
 
         /* ── Table card ── */
         .table-card {
@@ -179,23 +214,40 @@
             border: 1px solid var(--gray-200);
             border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 1px 4px rgba(52,152,219,.08);
         }
         .table-toolbar {
-            padding: 12px 16px;
+            padding: 13px 16px;
             border-bottom: 1px solid var(--gray-100);
             display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(to right, var(--blue-light), white);
         }
         .table-toolbar input[type="search"] {
-            flex: 1; max-width: 260px;
-            padding: 7px 11px;
-            border: 1px solid var(--gray-200);
-            border-radius: 6px; font-size: 13px;
+            flex: 1; max-width: 280px;
+            padding: 8px 12px;
+            border: 1.5px solid var(--blue-light);
+            border-radius: 20px;
+            font-size: 14px;
             font-family: inherit; outline: none;
             transition: border .15s;
+            background: white;
         }
-        .table-toolbar input[type="search"]:focus { border-color: var(--blue); }
+        .table-toolbar input[type="search"]:focus {
+            border-color: var(--blue);
+        }
         .result-count {
-            margin-left: auto; font-size: 12.5px; color: var(--gray-400);
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--gray-400);
+        }
+        .filter-status {
+            font-size: 12.5px;
+            padding: 3px 10px;
+            background: var(--orange-light);
+            color: var(--orange-dark);
+            border-radius: 12px;
+            border: 1px solid var(--orange);
+            display: none;
         }
 
         /* ── DataTable overrides ── */
@@ -208,13 +260,16 @@
 
         #questionTable { width: 100% !important; }
         #questionTable thead th {
-            background: var(--gray-50) !important;
-            padding: 9px 12px !important;
-            font-size: 11.5px !important; font-weight: 600 !important;
-            color: var(--gray-600) !important;
-            border-bottom: 1px solid var(--gray-200) !important;
+            background: var(--navy) !important;
+            color: rgba(255,255,255,.85) !important;
+            padding: 11px 13px !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            border-bottom: none !important;
             white-space: nowrap;
         }
+        #questionTable thead th:first-child { border-radius: 0; }
+
         #questionTable tbody tr {
             border-bottom: 1px solid var(--gray-100);
             transition: background .1s;
@@ -222,56 +277,68 @@
         #questionTable tbody tr:last-child { border-bottom: none; }
         #questionTable tbody tr:hover { background: var(--blue-light); }
         #questionTable tbody td {
-            padding: 9px 12px !important;
-            vertical-align: middle; font-size: 13px;
+            padding: 10px 13px !important;
+            vertical-align: middle;
+            font-size: 14px;
         }
 
         .q-no {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 11.5px; color: var(--gray-400);
+            font-size: 12.5px;
+            color: var(--gray-400);
+            font-weight: 500;
         }
         .q-text {
             max-width: 380px; overflow: hidden;
             text-overflow: ellipsis; white-space: nowrap;
+            font-size: 14px;
         }
 
         /* ── Badges ── */
         .badge {
-            display: inline-block; padding: 2px 8px;
-            border-radius: 100px; font-size: 11px; font-weight: 500;
+            display: inline-block; padding: 3px 9px;
+            border-radius: 100px; font-size: 12px; font-weight: 500;
             white-space: nowrap;
         }
-        .badge-tf     { background: var(--green-light);  color: var(--green-text); }
-        .badge-mc     { background: var(--blue-light);   color: var(--blue-hover); }
-        .badge-match  { background: var(--purple-light); color: var(--purple-text); }
-        .badge-other  { background: var(--gray-100);     color: var(--gray-600); }
+        .badge-tf     { background: var(--teal-light);   color: var(--teal-dark);   border: 1px solid var(--teal); }
+        .badge-mc     { background: var(--blue-light);   color: var(--blue-dark);   border: 1px solid var(--blue); }
+        .badge-match  { background: var(--purple-light); color: var(--purple-dark); border: 1px solid var(--purple); }
+        .badge-other  { background: var(--gray-100);     color: var(--gray-600);    border: 1px solid var(--gray-200); }
+
         .topic-tag {
-            display: inline-block; padding: 2px 7px;
-            border-radius: 4px; background: var(--amber-light);
-            color: var(--amber-text); font-size: 11px;
+            display: inline-block; padding: 3px 8px;
+            border-radius: 5px;
+            background: var(--orange-light);
+            color: var(--orange-dark);
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--orange);
         }
 
-        /* ── Row actions ── */
         .btn-row {
-            padding: 3px 9px; font-size: 11.5px;
-            border-radius: 5px; border: 1px solid var(--gray-200);
-            background: white; color: var(--gray-600);
-            cursor: pointer; transition: all .1s;
+            padding: 4px 11px; font-size: 12.5px;
+            border-radius: 5px;
+            border: 1px solid var(--blue-light);
+            background: var(--blue-light); color: var(--blue);
+            cursor: pointer; transition: all .12s; font-weight: 500;
         }
-        .btn-row:hover { background: var(--gray-100); border-color: var(--gray-400); }
+        .btn-row:hover {
+            background: var(--blue); color: white;
+            border-color: var(--blue);
+        }
 
         input[type="checkbox"].row-check {
             accent-color: var(--blue);
-            width: 14px; height: 14px; cursor: pointer;
+            width: 15px; height: 15px; cursor: pointer;
         }
 
         /* ── DataTables pagination ── */
         .dataTables_wrapper .dataTables_paginate {
-            padding: 10px 14px; text-align: right;
+            padding: 11px 16px; text-align: right;
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 3px 9px !important; border-radius: 5px !important;
-            border: none !important; font-size: 12.5px !important;
+            padding: 4px 10px !important; border-radius: 5px !important;
+            border: none !important; font-size: 13px !important;
             background: transparent !important; color: var(--gray-600) !important;
             cursor: pointer;
         }
@@ -279,114 +346,129 @@
             background: var(--blue) !important; color: white !important;
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
-            background: var(--gray-100) !important; color: var(--gray-800) !important;
+            background: var(--blue-light) !important; color: var(--blue) !important;
         }
         .dataTables_wrapper .dataTables_info {
-            padding: 10px 14px; font-size: 12px; color: var(--gray-400);
+            padding: 11px 16px; font-size: 13px; color: var(--gray-400);
         }
 
         /* ── Floating basket ── */
         .basket {
             position: fixed; bottom: 24px; right: 24px;
-            background: #0f172a; color: white;
-            border-radius: 12px; padding: 11px 16px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 6px 24px rgba(0,0,0,.22);
-            z-index: 100; transition: transform .25s, opacity .25s;
+            background: var(--navy);
+            color: white;
+            border-radius: 14px; padding: 12px 18px;
+            display: flex; align-items: center; gap: 13px;
+            box-shadow: 0 6px 28px rgba(44,62,80,.28);
+            z-index: 100;
+            transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .2s;
+            border: 2px solid rgba(52,152,219,.3);
         }
-        .basket.hidden { transform: translateY(72px); opacity: 0; pointer-events: none; }
+        .basket.hidden {
+            transform: translateY(80px); opacity: 0; pointer-events: none;
+        }
         .basket-count {
-            font-size: 22px; font-weight: 600;
-            font-family: 'IBM Plex Mono', monospace; min-width: 26px;
+            font-size: 26px; font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--blue);
+            min-width: 30px;
         }
-        .basket-label { font-size: 12px; color: rgba(255,255,255,.55); }
-        .basket-divider { width: 1px; height: 28px; background: rgba(255,255,255,.15); }
+        .basket-label { font-size: 12.5px; color: rgba(255,255,255,.55); }
+        .basket-divider { width: 1px; height: 30px; background: rgba(255,255,255,.15); }
         .basket-btn {
-            padding: 6px 12px; border-radius: 6px;
-            font-size: 12px; font-weight: 500;
-            cursor: pointer; border: none; transition: background .15s;
+            padding: 7px 13px; border-radius: 8px;
+            font-size: 13px; font-weight: 500;
+            cursor: pointer; border: none; transition: all .15s;
         }
         .basket-add  { background: var(--blue); color: white; }
-        .basket-add:hover  { background: var(--blue-hover); }
+        .basket-add:hover  { background: var(--blue-hover); transform: scale(1.04); }
         .basket-view { background: rgba(255,255,255,.12); color: white; }
-        .basket-view:hover { background: rgba(255,255,255,.2); }
+        .basket-view:hover { background: rgba(255,255,255,.22); }
 
         /* ── Modal ── */
         .modal-overlay {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,.38); z-index: 200;
+            background: rgba(44,62,80,.45); z-index: 200;
             align-items: center; justify-content: center;
         }
         .modal-overlay.open { display: flex; }
         .modal-box {
             background: white; border-radius: 14px;
-            width: 90%; max-width: 620px; max-height: 80vh;
+            width: 90%; max-width: 640px; max-height: 80vh;
             display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,.15);
         }
         .modal-header {
-            padding: 16px 20px; border-bottom: 1px solid var(--gray-200);
+            padding: 17px 22px;
+            border-bottom: 2px solid var(--blue-light);
             display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(to right, var(--blue-light), white);
         }
-        .modal-header h2 { font-size: 15px; font-weight: 600; }
+        .modal-header h2 {
+            font-size: 16px; font-weight: 600; color: var(--navy);
+        }
         .modal-close {
-            background: none; border: none; font-size: 17px;
+            background: none; border: none; font-size: 18px;
             color: var(--gray-400); cursor: pointer;
-            padding: 4px 6px; border-radius: 4px; transition: color .1s;
+            padding: 4px 6px; border-radius: 5px; transition: all .1s;
         }
-        .modal-close:hover { color: var(--gray-800); }
-        .modal-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+        .modal-close:hover { color: var(--orange); background: var(--orange-light); }
+        .modal-body { padding: 18px 22px; overflow-y: auto; flex: 1; }
         .modal-footer {
-            padding: 12px 20px; border-top: 1px solid var(--gray-200);
+            padding: 13px 22px;
+            border-top: 1px solid var(--gray-100);
             display: flex; gap: 8px; justify-content: flex-end;
         }
 
-        /* ── Selected items in modal ── */
+        /* ── Selected items ── */
         .selected-item {
             display: flex; align-items: flex-start; gap: 10px;
-            padding: 9px 12px; border: 1px solid var(--gray-200);
-            border-radius: 8px; margin-bottom: 7px;
+            padding: 10px 13px;
+            border: 1px solid var(--gray-200);
+            border-left: 3px solid var(--blue);
+            border-radius: 8px; margin-bottom: 8px;
+            transition: background .1s;
         }
+        .selected-item:hover { background: var(--blue-light); }
         .selected-item-no {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 11.5px; color: var(--gray-400);
-            white-space: nowrap; padding-top: 2px;
+            font-size: 12px; color: var(--blue);
+            white-space: nowrap; padding-top: 2px; font-weight: 600;
         }
-        .selected-item-text { font-size: 13px; flex: 1; line-height: 1.5; }
+        .selected-item-text { font-size: 13.5px; flex: 1; line-height: 1.5; }
         .selected-item-remove {
             background: none; border: none; color: var(--gray-400);
-            cursor: pointer; font-size: 14px; padding: 2px 4px;
-            border-radius: 3px; transition: color .1s; flex-shrink: 0;
+            cursor: pointer; font-size: 15px;
+            padding: 2px 5px; border-radius: 4px; transition: all .1s;
+            flex-shrink: 0;
         }
-        .selected-item-remove:hover { color: #dc2626; }
+        .selected-item-remove:hover { color: #e74c3c; background: #fdedec; }
 
         /* ── Edit form ── */
-        .form-group { margin-bottom: 13px; }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
-            display: block; font-size: 12px; font-weight: 500;
-            color: var(--gray-600); margin-bottom: 4px;
+            display: block; font-size: 13px; font-weight: 500;
+            color: var(--gray-600); margin-bottom: 5px;
         }
         .form-group input,
         .form-group textarea {
-            width: 100%; padding: 7px 10px;
-            border: 1px solid var(--gray-200); border-radius: 6px;
-            font-size: 13px; font-family: inherit; color: var(--gray-800);
+            width: 100%; padding: 8px 11px;
+            border: 1.5px solid var(--gray-200); border-radius: 6px;
+            font-size: 14px; font-family: inherit; color: var(--gray-800);
             outline: none; transition: border .15s;
         }
         .form-group input:focus,
         .form-group textarea:focus { border-color: var(--blue); }
         .form-group textarea { resize: vertical; min-height: 80px; }
 
-        /* ── Empty state ── */
         .empty-state {
             text-align: center; padding: 48px 20px; color: var(--gray-400);
+            font-size: 14px;
         }
-        .empty-state p { font-size: 13px; margin-top: 6px; }
     </style>
 </head>
-
 <body>
 
-<!-- Navbar -->
 <nav class="navbar">
     <span class="brand">📚 題庫系統</span>
     <a href="index.html">首頁</a>
@@ -394,21 +476,20 @@
     <a href="add.html">新增題目</a>
 </nav>
 
-<!-- Main layout -->
 <div class="layout">
 
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-section">
-            <h3>章節</h3>
+            <h3>📂 章節</h3>
             <div id="topic-options"></div>
         </div>
+        <hr class="sidebar-divider">
         <div class="sidebar-section">
-            <h3>題型</h3>
+            <h3>🏷 題型</h3>
             <div id="type-options"></div>
         </div>
-        <button class="sidebar-btn sidebar-btn-primary" onclick="applyFilter()">套用篩選</button>
-        <button class="sidebar-btn sidebar-btn-ghost"   onclick="clearFilter()">清除</button>
+        <button class="sidebar-clear" id="clear-btn" onclick="clearFilter()" style="display:none;">✕ 清除所有篩選</button>
     </aside>
 
     <!-- Content -->
@@ -420,19 +501,19 @@
 
         <div class="table-card">
             <div class="table-toolbar">
-                <input type="search" id="search-input" placeholder="搜尋題目…" oninput="searchTable(this.value)">
+                <input type="search" id="search-input" placeholder="🔍  搜尋題目…" oninput="searchTable(this.value)">
+                <span class="filter-status" id="filter-status"></span>
                 <span class="result-count" id="result-count"></span>
             </div>
-
             <table id="questionTable" class="display">
                 <thead>
                     <tr>
-                        <th style="width:36px;"></th>
-                        <th style="width:64px;">NO.</th>
-                        <th>題目</th>
-                        <th style="width:108px;">題型</th>
-                        <th style="width:110px;">章節</th>
-                        <th style="width:64px;"></th>
+                        <th style="width:38px;"></th>
+                        <th style="width:66px;">NO.</th>
+                        <th>題目內容</th>
+                        <th style="width:115px;">題型</th>
+                        <th style="width:115px;">章節</th>
+                        <th style="width:68px;"></th>
                     </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
@@ -445,24 +526,24 @@
 <div class="basket hidden" id="basket">
     <div>
         <div class="basket-count" id="basket-count">0</div>
-        <div class="basket-label">題已選取</div>
+        <div class="basket-label">題已勾選</div>
     </div>
     <div class="basket-divider"></div>
-    <button class="basket-btn basket-add" onclick="addSelectedQuestions()">加入</button>
+    <button class="basket-btn basket-add"  onclick="addSelectedQuestions()">＋ 加入清單</button>
     <button class="basket-btn basket-view" onclick="openSelectedModal()">查看清單</button>
 </div>
 
-<!-- Selected questions modal -->
+<!-- Selected modal -->
 <div class="modal-overlay" id="selected-modal">
     <div class="modal-box">
         <div class="modal-header">
-            <h2>已選題目 <span id="selected-modal-count" style="font-weight:400;color:var(--gray-400);font-size:13px;"></span></h2>
+            <h2>✅ 已選題目 <span id="selected-modal-count" style="font-weight:400;color:var(--gray-400);font-size:14px;"></span></h2>
             <button class="modal-close" onclick="closeSelectedModal()">✕</button>
         </div>
         <div class="modal-body" id="selected-list"></div>
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="closeSelectedModal()">關閉</button>
-            <button class="btn btn-primary" onclick="exportWord()">匯出 Word</button>
+            <button class="btn btn-success" onclick="exportWord()">📄 匯出 Word</button>
         </div>
     </div>
 </div>
@@ -471,7 +552,7 @@
 <div class="modal-overlay" id="edit-modal">
     <div class="modal-box">
         <div class="modal-header">
-            <h2>修改題目</h2>
+            <h2>✏️ 修改題目</h2>
             <button class="modal-close" onclick="closeEditModal()">✕</button>
         </div>
         <div class="modal-body" id="edit-form"></div>
@@ -490,7 +571,6 @@ let selectedQuestions = [];
 let dataTable = null;
 let editingNo = null;
 
-/* ── Init ── */
 document.addEventListener("DOMContentLoaded", async () => {
     loadSelectedFromSession();
     await loadQuestions();
@@ -508,11 +588,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function loadSelectedFromSession() {
-    const saved = sessionStorage.getItem("selectedQuestions");
-    if (saved) { try { selectedQuestions = JSON.parse(saved); } catch(e) {} }
+    try {
+        const saved = sessionStorage.getItem("selectedQuestions");
+        if (saved) selectedQuestions = JSON.parse(saved);
+    } catch(e) {}
 }
 
-/* ── Load questions ── */
 async function loadQuestions() {
     try {
         const res = await fetch(API_URL + "?action=read");
@@ -531,7 +612,6 @@ async function loadQuestions() {
     fillSidebarFilters();
 }
 
-/* ── Sidebar filters ── */
 function fillSidebarFilters() {
     const topics = [...new Set(allQuestions.map(q => q["Topic"]).filter(Boolean))].sort();
     const types  = [...new Set(allQuestions.map(q => q["Type_simplify"]).filter(Boolean))];
@@ -541,37 +621,75 @@ function fillSidebarFilters() {
 
     topics.forEach(t => {
         const count = allQuestions.filter(q => q["Topic"] === t).length;
-        topicDiv.innerHTML += `
-            <div class="filter-option">
-                <input type="checkbox" id="topic-${CSS.escape(t)}" value="${t}" class="filter-topic">
-                <label for="topic-${CSS.escape(t)}">${t}</label>
-                <span class="filter-count">${count}</span>
-            </div>`;
+        const id = "topic-" + t.replace(/\s/g,"_");
+        const div = document.createElement("div");
+        div.className = "filter-option";
+        div.innerHTML = `
+            <input type="checkbox" id="${id}" value="${t}" class="filter-topic">
+            <label for="${id}">${t}</label>
+            <span class="filter-count">${count}</span>`;
+        div.querySelector("input").addEventListener("change", onFilterChange);
+        topicDiv.appendChild(div);
     });
 
     types.forEach(t => {
         const count = allQuestions.filter(q => q["Type_simplify"] === t).length;
-        typeDiv.innerHTML += `
-            <div class="filter-option">
-                <input type="checkbox" id="type-${CSS.escape(t)}" value="${t}" class="filter-type">
-                <label for="type-${CSS.escape(t)}">${t}</label>
-                <span class="filter-count">${count}</span>
-            </div>`;
+        const id = "type-" + t.replace(/\s/g,"_");
+        const div = document.createElement("div");
+        div.className = "filter-option";
+        div.innerHTML = `
+            <input type="checkbox" id="${id}" value="${t}" class="filter-type">
+            <label for="${id}">${t}</label>
+            <span class="filter-count">${count}</span>`;
+        div.querySelector("input").addEventListener("change", onFilterChange);
+        typeDiv.appendChild(div);
     });
+}
+
+/* ── Live filter: fires on every checkbox change ── */
+function onFilterChange() {
+    applyFilter();
+
+    // Highlight active filter rows
+    document.querySelectorAll(".filter-option").forEach(el => {
+        const cb = el.querySelector("input");
+        el.classList.toggle("active-filter", cb.checked);
+    });
+
+    // Show/hide clear button
+    const anyChecked = document.querySelectorAll(".filter-topic:checked, .filter-type:checked").length > 0;
+    document.getElementById("clear-btn").style.display = anyChecked ? "block" : "none";
 }
 
 function applyFilter() {
     const selTopics = [...document.querySelectorAll(".filter-topic:checked")].map(el => el.value);
     const selTypes  = [...document.querySelectorAll(".filter-type:checked")].map(el => el.value);
+
     const filtered = allQuestions.filter(q =>
         (selTopics.length === 0 || selTopics.includes(q["Topic"])) &&
         (selTypes.length  === 0 || selTypes.includes(q["Type_simplify"]))
     );
+
     renderTable(filtered);
+
+    // Show filter status pill
+    const statusEl = document.getElementById("filter-status");
+    const parts = [];
+    if (selTopics.length) parts.push(`章節: ${selTopics.join(", ")}`);
+    if (selTypes.length)  parts.push(`題型: ${selTypes.join(", ")}`);
+    if (parts.length) {
+        statusEl.textContent = "篩選中：" + parts.join(" ／ ");
+        statusEl.style.display = "inline-block";
+    } else {
+        statusEl.style.display = "none";
+    }
 }
 
 function clearFilter() {
     document.querySelectorAll(".filter-topic, .filter-type").forEach(el => el.checked = false);
+    document.querySelectorAll(".filter-option").forEach(el => el.classList.remove("active-filter"));
+    document.getElementById("clear-btn").style.display = "none";
+    document.getElementById("filter-status").style.display = "none";
     renderTable(allQuestions);
 }
 
@@ -579,7 +697,6 @@ function searchTable(val) {
     if (dataTable) dataTable.search(val).draw();
 }
 
-/* ── Badge helper ── */
 function getTypeBadge(type) {
     if (!type) return "";
     const l = type.toLowerCase();
@@ -588,11 +705,10 @@ function getTypeBadge(type) {
     if (l.includes("multiple") || l.includes("choice") || l === "mc")
         return `<span class="badge badge-mc">選擇題</span>`;
     if (l.includes("match"))
-        return `<span class="badge badge-match">配對</span>`;
+        return `<span class="badge badge-match">配對題</span>`;
     return `<span class="badge badge-other">${type}</span>`;
 }
 
-/* ── Render table ── */
 function renderTable(list) {
     const tbody = document.getElementById("table-body");
     tbody.innerHTML = "";
@@ -619,7 +735,7 @@ function renderTable(list) {
         pageLength: 25,
         language: {
             paginate: { previous: "‹", next: "›" },
-            info: "_START_–_END_ / 共 _TOTAL_ 筆",
+            info: "_START_–_END_ ／ 共 _TOTAL_ 筆",
             infoEmpty: "無資料",
             zeroRecords: "沒有符合的題目"
         },
@@ -654,17 +770,16 @@ function addSelectedQuestions() {
 
     const btn = document.querySelector(".basket-add");
     const orig = btn.textContent;
-    btn.textContent = "✓ 已加入";
-    setTimeout(() => btn.textContent = orig, 1400);
+    btn.textContent = "✓ 已加入！";
+    setTimeout(() => btn.textContent = orig, 1500);
 }
 
-/* ── Selected modal ── */
 function openSelectedModal() {
     const listDiv = document.getElementById("selected-list");
-    document.getElementById("selected-modal-count").textContent = `(${selectedQuestions.length} 題)`;
+    document.getElementById("selected-modal-count").textContent = `（${selectedQuestions.length} 題）`;
 
     if (selectedQuestions.length === 0) {
-        listDiv.innerHTML = `<div class="empty-state"><p>尚未加入任何題目</p></div>`;
+        listDiv.innerHTML = `<div class="empty-state">尚未加入任何題目<br><small>請先在表格中勾選題目後按「加入清單」</small></div>`;
     } else {
         listDiv.innerHTML = selectedQuestions.map((q, i) => `
             <div class="selected-item">
@@ -688,7 +803,6 @@ function closeSelectedModal() {
     document.getElementById("selected-modal").classList.remove("open");
 }
 
-/* ── Edit modal ── */
 function openEditModal(no) {
     editingNo = no;
     const q = allQuestions.find(x => x["NO."] == no);
@@ -725,7 +839,7 @@ function closeEditModal() {
 
 async function saveEdit() {
     const data = {
-        no:     editingNo,
+        no:       editingNo,
         question: document.getElementById("edit-question").value,
         answer:   document.getElementById("edit-answer").value,
         topic:    document.getElementById("edit-topic").value,
@@ -741,17 +855,13 @@ async function saveEdit() {
     }
 }
 
-/* ── Export Word ── */
 async function exportWord() {
     if (selectedQuestions.length === 0) { alert("沒有題目可匯出！"); return; }
-
     const tf    = selectedQuestions.filter(q => q["Type_simplify"] === "True / False");
     const mc    = selectedQuestions.filter(q => q["Type_simplify"] === "Multiple choices");
     const match = selectedQuestions.filter(q => q["Type_simplify"] === "Match");
-
-    const doc = new docx.Document();
-
-    function addSection(title, list) {
+    const doc   = new docx.Document();
+    const addSection = (title, list) => {
         if (!list.length) return;
         doc.addSection({
             children: [
@@ -759,19 +869,16 @@ async function exportWord() {
                 ...list.map(q => new docx.Paragraph(`${q["NO."]}. ${q["Question"]}`))
             ]
         });
-    }
-
+    };
     addSection("True / False", tf);
     addSection("Multiple Choice", mc);
     addSection("Match", match);
-
     doc.addSection({
         children: [
             new docx.Paragraph({ text: "答案", heading: docx.HeadingLevel.HEADING_1 }),
             ...selectedQuestions.map(q => new docx.Paragraph(`${q["NO."]}: ${q["Answer"]}`))
         ]
     });
-
     docx.Packer.toBlob(doc).then(blob => saveAs(blob, "題庫.docx"));
 }
 </script>
