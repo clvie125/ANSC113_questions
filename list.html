@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>題庫列表</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -12,131 +14,766 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <!-- Word Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
-        /* Select2 主題色 */
-        .select2-container--default .select2-selection--multiple {
-            border: 1px solid #3498db;
-            min-height: 42px;
-            padding: 5px;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #3498db;
-            border: none;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-
-        /* 刪除按鈕更明顯 */
-        .select2-selection__choice__remove {
-            color: red !important;
-            font-size: 18px !important;
-            margin-right: 6px !important;
-            font-weight: bold !important;
-            text-shadow: 0 0 3px rgba(0,0,0,0.4);
+        :root {
+            --blue:        #2563eb;
+            --blue-hover:  #1e40af;
+            --blue-light:  #eff6ff;
+            --gray-50:     #f9fafb;
+            --gray-100:    #f3f4f6;
+            --gray-200:    #e5e7eb;
+            --gray-400:    #9ca3af;
+            --gray-600:    #4b5563;
+            --gray-800:    #1f2937;
+            --green-light: #dcfce7;
+            --green-text:  #15803d;
+            --amber-light: #fef3c7;
+            --amber-text:  #b45309;
+            --purple-light:#ede9fe;
+            --purple-text: #6d28d9;
+            --radius:      8px;
+            --sidebar-w:   220px;
         }
 
-        /* 篩選區塊 */
-        #filter-panel {
-            display: none;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'IBM Plex Sans', system-ui, sans-serif;
+            font-size: 14px;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            min-height: 100vh;
         }
 
-        .top-actions {
+        /* ── Navbar ── */
+        .navbar {
+            background: #0f172a;
+            padding: 0 24px;
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            align-items: center;
+            height: 52px;
+            gap: 4px;
         }
+        .navbar .brand {
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            margin-right: 28px;
+            letter-spacing: -0.3px;
+        }
+        .navbar a {
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+            padding: 6px 13px;
+            border-radius: 6px;
+            font-size: 13.5px;
+            transition: all .15s;
+        }
+        .navbar a:hover  { background: rgba(255,255,255,.1);  color: white; }
+        .navbar a.active { background: rgba(255,255,255,.15); color: white; }
+
+        /* ── Layout ── */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 52px);
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            padding: 20px 14px 24px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 52px);
+            overflow-y: auto;
+        }
+        .sidebar-section { margin-bottom: 22px; }
+        .sidebar-section h3 {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            margin-bottom: 8px;
+            padding-left: 6px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .filter-option:hover { background: var(--gray-100); }
+        .filter-option input[type="checkbox"] {
+            accent-color: var(--blue);
+            width: 14px; height: 14px;
+            cursor: pointer; flex-shrink: 0;
+        }
+        .filter-option label {
+            cursor: pointer; font-size: 12.5px;
+            color: var(--gray-600); flex: 1;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .filter-count {
+            font-size: 11px; color: var(--gray-400);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            padding: 7px;
+            border-radius: var(--radius);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .15s;
+            margin-top: 5px;
+        }
+        .sidebar-btn-primary {
+            background: var(--blue); color: white; border: none;
+        }
+        .sidebar-btn-primary:hover { background: var(--blue-hover); }
+        .sidebar-btn-ghost {
+            background: white; color: var(--gray-600);
+            border: 1px solid var(--gray-200);
+        }
+        .sidebar-btn-ghost:hover { background: var(--gray-100); }
+
+        /* ── Main ── */
+        .main { flex: 1; padding: 24px; min-width: 0; }
+
+        .page-header {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 18px;
+        }
+        .page-header h1 { font-size: 19px; font-weight: 600; }
+
+        .btn {
+            padding: 7px 14px; border-radius: var(--radius);
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            border: 1px solid transparent; transition: all .15s;
+            display: inline-flex; align-items: center; gap: 5px;
+            text-decoration: none;
+        }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: var(--blue-hover); }
+        .btn-outline {
+            background: white; color: var(--gray-600);
+            border-color: var(--gray-200);
+        }
+        .btn-outline:hover { background: var(--gray-100); border-color: var(--gray-400); }
+
+        /* ── Table card ── */
+        .table-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table-toolbar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .table-toolbar input[type="search"] {
+            flex: 1; max-width: 260px;
+            padding: 7px 11px;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px; font-size: 13px;
+            font-family: inherit; outline: none;
+            transition: border .15s;
+        }
+        .table-toolbar input[type="search"]:focus { border-color: var(--blue); }
+        .result-count {
+            margin-left: auto; font-size: 12.5px; color: var(--gray-400);
+        }
+
+        /* ── DataTable overrides ── */
+        .dataTables_wrapper { padding: 0; }
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_length { display: none; }
+
+        table.dataTable { border-collapse: collapse !important; }
+        table.dataTable.no-footer { border-bottom: none !important; }
+
+        #questionTable { width: 100% !important; }
+        #questionTable thead th {
+            background: var(--gray-50) !important;
+            padding: 9px 12px !important;
+            font-size: 11.5px !important; font-weight: 600 !important;
+            color: var(--gray-600) !important;
+            border-bottom: 1px solid var(--gray-200) !important;
+            white-space: nowrap;
+        }
+        #questionTable tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background .1s;
+        }
+        #questionTable tbody tr:last-child { border-bottom: none; }
+        #questionTable tbody tr:hover { background: var(--blue-light); }
+        #questionTable tbody td {
+            padding: 9px 12px !important;
+            vertical-align: middle; font-size: 13px;
+        }
+
+        .q-no {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px; color: var(--gray-400);
+        }
+        .q-text {
+            max-width: 380px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-block; padding: 2px 8px;
+            border-radius: 100px; font-size: 11px; font-weight: 500;
+            white-space: nowrap;
+        }
+        .badge-tf     { background: var(--green-light);  color: var(--green-text); }
+        .badge-mc     { background: var(--blue-light);   color: var(--blue-hover); }
+        .badge-match  { background: var(--purple-light); color: var(--purple-text); }
+        .badge-other  { background: var(--gray-100);     color: var(--gray-600); }
+        .topic-tag {
+            display: inline-block; padding: 2px 7px;
+            border-radius: 4px; background: var(--amber-light);
+            color: var(--amber-text); font-size: 11px;
+        }
+
+        /* ── Row actions ── */
+        .btn-row {
+            padding: 3px 9px; font-size: 11.5px;
+            border-radius: 5px; border: 1px solid var(--gray-200);
+            background: white; color: var(--gray-600);
+            cursor: pointer; transition: all .1s;
+        }
+        .btn-row:hover { background: var(--gray-100); border-color: var(--gray-400); }
+
+        input[type="checkbox"].row-check {
+            accent-color: var(--blue);
+            width: 14px; height: 14px; cursor: pointer;
+        }
+
+        /* ── DataTables pagination ── */
+        .dataTables_wrapper .dataTables_paginate {
+            padding: 10px 14px; text-align: right;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 3px 9px !important; border-radius: 5px !important;
+            border: none !important; font-size: 12.5px !important;
+            background: transparent !important; color: var(--gray-600) !important;
+            cursor: pointer;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--blue) !important; color: white !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+            background: var(--gray-100) !important; color: var(--gray-800) !important;
+        }
+        .dataTables_wrapper .dataTables_info {
+            padding: 10px 14px; font-size: 12px; color: var(--gray-400);
+        }
+
+        /* ── Floating basket ── */
+        .basket {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #0f172a; color: white;
+            border-radius: 12px; padding: 11px 16px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,.22);
+            z-index: 100; transition: transform .25s, opacity .25s;
+        }
+        .basket.hidden { transform: translateY(72px); opacity: 0; pointer-events: none; }
+        .basket-count {
+            font-size: 22px; font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace; min-width: 26px;
+        }
+        .basket-label { font-size: 12px; color: rgba(255,255,255,.55); }
+        .basket-divider { width: 1px; height: 28px; background: rgba(255,255,255,.15); }
+        .basket-btn {
+            padding: 6px 12px; border-radius: 6px;
+            font-size: 12px; font-weight: 500;
+            cursor: pointer; border: none; transition: background .15s;
+        }
+        .basket-add  { background: var(--blue); color: white; }
+        .basket-add:hover  { background: var(--blue-hover); }
+        .basket-view { background: rgba(255,255,255,.12); color: white; }
+        .basket-view:hover { background: rgba(255,255,255,.2); }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.38); z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: white; border-radius: 14px;
+            width: 90%; max-width: 620px; max-height: 80vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--gray-200);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-header h2 { font-size: 15px; font-weight: 600; }
+        .modal-close {
+            background: none; border: none; font-size: 17px;
+            color: var(--gray-400); cursor: pointer;
+            padding: 4px 6px; border-radius: 4px; transition: color .1s;
+        }
+        .modal-close:hover { color: var(--gray-800); }
+        .modal-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+        .modal-footer {
+            padding: 12px 20px; border-top: 1px solid var(--gray-200);
+            display: flex; gap: 8px; justify-content: flex-end;
+        }
+
+        /* ── Selected items in modal ── */
+        .selected-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 12px; border: 1px solid var(--gray-200);
+            border-radius: 8px; margin-bottom: 7px;
+        }
+        .selected-item-no {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px; color: var(--gray-400);
+            white-space: nowrap; padding-top: 2px;
+        }
+        .selected-item-text { font-size: 13px; flex: 1; line-height: 1.5; }
+        .selected-item-remove {
+            background: none; border: none; color: var(--gray-400);
+            cursor: pointer; font-size: 14px; padding: 2px 4px;
+            border-radius: 3px; transition: color .1s; flex-shrink: 0;
+        }
+        .selected-item-remove:hover { color: #dc2626; }
+
+        /* ── Edit form ── */
+        .form-group { margin-bottom: 13px; }
+        .form-group label {
+            display: block; font-size: 12px; font-weight: 500;
+            color: var(--gray-600); margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%; padding: 7px 10px;
+            border: 1px solid var(--gray-200); border-radius: 6px;
+            font-size: 13px; font-family: inherit; color: var(--gray-800);
+            outline: none; transition: border .15s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus { border-color: var(--blue); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center; padding: 48px 20px; color: var(--gray-400);
+        }
+        .empty-state p { font-size: 13px; margin-top: 6px; }
     </style>
 </head>
 
 <body>
 
-<div class="navbar">
+<!-- Navbar -->
+<nav class="navbar">
+    <span class="brand">📚 題庫系統</span>
     <a href="index.html">首頁</a>
     <a href="list.html" class="active">題庫列表</a>
     <a href="add.html">新增題目</a>
+</nav>
+
+<!-- Main layout -->
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <h3>章節</h3>
+            <div id="topic-options"></div>
+        </div>
+        <div class="sidebar-section">
+            <h3>題型</h3>
+            <div id="type-options"></div>
+        </div>
+        <button class="sidebar-btn sidebar-btn-primary" onclick="applyFilter()">套用篩選</button>
+        <button class="sidebar-btn sidebar-btn-ghost"   onclick="clearFilter()">清除</button>
+    </aside>
+
+    <!-- Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1>題庫列表</h1>
+            <a href="add.html" class="btn btn-primary">＋ 新增題目</a>
+        </div>
+
+        <div class="table-card">
+            <div class="table-toolbar">
+                <input type="search" id="search-input" placeholder="搜尋題目…" oninput="searchTable(this.value)">
+                <span class="result-count" id="result-count"></span>
+            </div>
+
+            <table id="questionTable" class="display">
+                <thead>
+                    <tr>
+                        <th style="width:36px;"></th>
+                        <th style="width:64px;">NO.</th>
+                        <th>題目</th>
+                        <th style="width:108px;">題型</th>
+                        <th style="width:110px;">章節</th>
+                        <th style="width:64px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </main>
 </div>
 
-<h1>題庫列表</h1>
-
-<!-- 上方功能鍵 -->
-<div class="top-actions">
-    <button onclick="toggleFilter()">篩選題目</button>
-    <button onclick="addSelectedQuestions()">加入題目</button>
-    <button onclick="openSelectedModal()">查看所選題目</button>
+<!-- Floating basket -->
+<div class="basket hidden" id="basket">
+    <div>
+        <div class="basket-count" id="basket-count">0</div>
+        <div class="basket-label">題已選取</div>
+    </div>
+    <div class="basket-divider"></div>
+    <button class="basket-btn basket-add" onclick="addSelectedQuestions()">加入</button>
+    <button class="basket-btn basket-view" onclick="openSelectedModal()">查看清單</button>
 </div>
 
-<!-- 篩選區塊（預設隱藏） -->
-<div id="filter-panel">
-    <label>選擇章節</label>
-    <select id="topic-select" multiple="multiple" style="width:100%; margin-bottom:20px;"></select>
-
-    <label>選擇題型</label>
-    <select id="type-select" multiple="multiple" style="width:100%;"></select>
-
-    <button onclick="applyFilter()" style="margin-top:15px;">篩選</button>
-</div>
-
-<!-- 題目表格 -->
-<table id="questionTable" class="display" style="width:100%; margin-top:20px;">
-    <thead>
-        <tr>
-            <th>選取</th>
-            <th>NO.</th>
-            <th>Question</th>
-            <th>Type</th>
-            <th>Type_simplify</th>
-            <th>Answer</th>
-            <th>Topic</th>
-            <th>Picture</th>
-            <th>Date</th>
-            <th>修改</th>
-        </tr>
-    </thead>
-    <tbody id="table-body"></tbody>
-</table>
-
-<!-- 查看所選題目 -->
-<div class="modal" id="selected-modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeSelectedModal()">✖</span>
-        <h2>已選題目</h2>
-        <div id="selected-list"></div>
-        <button onclick="exportWord()">匯出 Word</button>
+<!-- Selected questions modal -->
+<div class="modal-overlay" id="selected-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>已選題目 <span id="selected-modal-count" style="font-weight:400;color:var(--gray-400);font-size:13px;"></span></h2>
+            <button class="modal-close" onclick="closeSelectedModal()">✕</button>
+        </div>
+        <div class="modal-body" id="selected-list"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeSelectedModal()">關閉</button>
+            <button class="btn btn-primary" onclick="exportWord()">匯出 Word</button>
+        </div>
     </div>
 </div>
 
-<!-- 修改題目 -->
-<div class="modal" id="edit-modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeEditModal()">✖</span>
-        <h2>修改題目</h2>
-        <div id="edit-form"></div>
-        <button onclick="saveEdit()">儲存修改</button>
+<!-- Edit modal -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>修改題目</h2>
+            <button class="modal-close" onclick="closeEditModal()">✕</button>
+        </div>
+        <div class="modal-body" id="edit-form"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeEditModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveEdit()">儲存修改</button>
+        </div>
     </div>
 </div>
-
-<script src="script.js"></script>
 
 <script>
-function toggleFilter() {
-    const panel = document.getElementById("filter-panel");
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
+const API_URL = "https://script.google.com/macros/s/AKfycbzA4b-kNA-k5c3bEPjhddJtuGXkTzn57zfLWP4OnrEH9D_08LpkZxnbcyYCt6fV8tEC/exec";
+
+let allQuestions = [];
+let selectedQuestions = [];
+let dataTable = null;
+let editingNo = null;
+
+/* ── Init ── */
+document.addEventListener("DOMContentLoaded", async () => {
+    loadSelectedFromSession();
+    await loadQuestions();
+    updateBasket();
+
+    document.getElementById("table-body").addEventListener("change", e => {
+        if (e.target.classList.contains("row-check")) updateBasket();
+    });
+
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", e => {
+            if (e.target === overlay) overlay.classList.remove("open");
+        });
+    });
+});
+
+function loadSelectedFromSession() {
+    const saved = sessionStorage.getItem("selectedQuestions");
+    if (saved) { try { selectedQuestions = JSON.parse(saved); } catch(e) {} }
+}
+
+/* ── Load questions ── */
+async function loadQuestions() {
+    try {
+        const res = await fetch(API_URL + "?action=read");
+        const raw = await res.json();
+        const headers = raw[0];
+        allQuestions = raw.slice(1).map(row => {
+            let obj = {};
+            headers.forEach((h, i) => obj[h] = row[i] ?? "");
+            return obj;
+        });
+    } catch(e) {
+        console.error("載入失敗", e);
+        allQuestions = [];
+    }
+    renderTable(allQuestions);
+    fillSidebarFilters();
+}
+
+/* ── Sidebar filters ── */
+function fillSidebarFilters() {
+    const topics = [...new Set(allQuestions.map(q => q["Topic"]).filter(Boolean))].sort();
+    const types  = [...new Set(allQuestions.map(q => q["Type_simplify"]).filter(Boolean))];
+
+    const topicDiv = document.getElementById("topic-options");
+    const typeDiv  = document.getElementById("type-options");
+
+    topics.forEach(t => {
+        const count = allQuestions.filter(q => q["Topic"] === t).length;
+        topicDiv.innerHTML += `
+            <div class="filter-option">
+                <input type="checkbox" id="topic-${CSS.escape(t)}" value="${t}" class="filter-topic">
+                <label for="topic-${CSS.escape(t)}">${t}</label>
+                <span class="filter-count">${count}</span>
+            </div>`;
+    });
+
+    types.forEach(t => {
+        const count = allQuestions.filter(q => q["Type_simplify"] === t).length;
+        typeDiv.innerHTML += `
+            <div class="filter-option">
+                <input type="checkbox" id="type-${CSS.escape(t)}" value="${t}" class="filter-type">
+                <label for="type-${CSS.escape(t)}">${t}</label>
+                <span class="filter-count">${count}</span>
+            </div>`;
+    });
+}
+
+function applyFilter() {
+    const selTopics = [...document.querySelectorAll(".filter-topic:checked")].map(el => el.value);
+    const selTypes  = [...document.querySelectorAll(".filter-type:checked")].map(el => el.value);
+    const filtered = allQuestions.filter(q =>
+        (selTopics.length === 0 || selTopics.includes(q["Topic"])) &&
+        (selTypes.length  === 0 || selTypes.includes(q["Type_simplify"]))
+    );
+    renderTable(filtered);
+}
+
+function clearFilter() {
+    document.querySelectorAll(".filter-topic, .filter-type").forEach(el => el.checked = false);
+    renderTable(allQuestions);
+}
+
+function searchTable(val) {
+    if (dataTable) dataTable.search(val).draw();
+}
+
+/* ── Badge helper ── */
+function getTypeBadge(type) {
+    if (!type) return "";
+    const l = type.toLowerCase();
+    if (l.includes("true") || l.includes("false") || l === "t/f")
+        return `<span class="badge badge-tf">T / F</span>`;
+    if (l.includes("multiple") || l.includes("choice") || l === "mc")
+        return `<span class="badge badge-mc">選擇題</span>`;
+    if (l.includes("match"))
+        return `<span class="badge badge-match">配對</span>`;
+    return `<span class="badge badge-other">${type}</span>`;
+}
+
+/* ── Render table ── */
+function renderTable(list) {
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = "";
+
+    list.forEach(q => {
+        const checked = selectedQuestions.some(x => x["NO."] == q["NO."]) ? "checked" : "";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><input type="checkbox" class="row-check" data-no="${q["NO."]}" ${checked}></td>
+            <td><span class="q-no">${q["NO."]}</span></td>
+            <td><div class="q-text" title="${(q["Question"]||"").replace(/"/g,"&quot;")}">${q["Question"]||""}</div></td>
+            <td>${getTypeBadge(q["Type_simplify"])}</td>
+            <td>${q["Topic"] ? `<span class="topic-tag">${q["Topic"]}</span>` : ""}</td>
+            <td><button class="btn-row" onclick="openEditModal('${q["NO."]}')">修改</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    if (dataTable) { dataTable.destroy(); dataTable = null; }
+
+    dataTable = new DataTable("#questionTable", {
+        destroy: true,
+        autoWidth: false,
+        pageLength: 25,
+        language: {
+            paginate: { previous: "‹", next: "›" },
+            info: "_START_–_END_ / 共 _TOTAL_ 筆",
+            infoEmpty: "無資料",
+            zeroRecords: "沒有符合的題目"
+        },
+        drawCallback: updateResultCount,
+        initComplete: updateResultCount
+    });
+}
+
+function updateResultCount() {
+    const info = dataTable ? dataTable.page.info() : null;
+    document.getElementById("result-count").textContent = info ? `共 ${info.recordsDisplay} 筆` : "";
+}
+
+/* ── Basket ── */
+function updateBasket() {
+    const checkedCount = document.querySelectorAll(".row-check:checked").length;
+    const display = checkedCount > 0 ? checkedCount : selectedQuestions.length;
+    const basket = document.getElementById("basket");
+    document.getElementById("basket-count").textContent = display;
+    basket.classList.toggle("hidden", display === 0);
+}
+
+function addSelectedQuestions() {
+    document.querySelectorAll(".row-check:checked").forEach(chk => {
+        const no = chk.dataset.no;
+        const q = allQuestions.find(x => x["NO."] == no);
+        if (q && !selectedQuestions.some(x => x["NO."] == no)) selectedQuestions.push(q);
+        chk.checked = false;
+    });
+    sessionStorage.setItem("selectedQuestions", JSON.stringify(selectedQuestions));
+    updateBasket();
+
+    const btn = document.querySelector(".basket-add");
+    const orig = btn.textContent;
+    btn.textContent = "✓ 已加入";
+    setTimeout(() => btn.textContent = orig, 1400);
+}
+
+/* ── Selected modal ── */
+function openSelectedModal() {
+    const listDiv = document.getElementById("selected-list");
+    document.getElementById("selected-modal-count").textContent = `(${selectedQuestions.length} 題)`;
+
+    if (selectedQuestions.length === 0) {
+        listDiv.innerHTML = `<div class="empty-state"><p>尚未加入任何題目</p></div>`;
+    } else {
+        listDiv.innerHTML = selectedQuestions.map((q, i) => `
+            <div class="selected-item">
+                <span class="selected-item-no">${q["NO."]}</span>
+                <span class="selected-item-text">${q["Question"]}</span>
+                <button class="selected-item-remove" onclick="removeSelected(${i})" title="移除">✕</button>
+            </div>
+        `).join("");
+    }
+    document.getElementById("selected-modal").classList.add("open");
+}
+
+function removeSelected(index) {
+    selectedQuestions.splice(index, 1);
+    sessionStorage.setItem("selectedQuestions", JSON.stringify(selectedQuestions));
+    openSelectedModal();
+    updateBasket();
+}
+
+function closeSelectedModal() {
+    document.getElementById("selected-modal").classList.remove("open");
+}
+
+/* ── Edit modal ── */
+function openEditModal(no) {
+    editingNo = no;
+    const q = allQuestions.find(x => x["NO."] == no);
+    if (!q) return;
+
+    document.getElementById("edit-form").innerHTML = `
+        <div class="form-group">
+            <label>題目內容</label>
+            <textarea id="edit-question">${q["Question"]||""}</textarea>
+        </div>
+        <div class="form-group">
+            <label>答案</label>
+            <input id="edit-answer" value="${(q["Answer"]||"").replace(/"/g,"&quot;")}">
+        </div>
+        <div class="form-group">
+            <label>章節 (Topic)</label>
+            <input id="edit-topic" value="${(q["Topic"]||"").replace(/"/g,"&quot;")}">
+        </div>
+        <div class="form-group">
+            <label>題型 (Type)</label>
+            <input id="edit-type" value="${(q["Type"]||"").replace(/"/g,"&quot;")}">
+        </div>
+        <div class="form-group">
+            <label>題型簡稱 (Type_simplify)</label>
+            <input id="edit-type-s" value="${(q["Type_simplify"]||"").replace(/"/g,"&quot;")}">
+        </div>
+    `;
+    document.getElementById("edit-modal").classList.add("open");
+}
+
+function closeEditModal() {
+    document.getElementById("edit-modal").classList.remove("open");
+}
+
+async function saveEdit() {
+    const data = {
+        no:     editingNo,
+        question: document.getElementById("edit-question").value,
+        answer:   document.getElementById("edit-answer").value,
+        topic:    document.getElementById("edit-topic").value,
+        type:     document.getElementById("edit-type").value,
+        type_s:   document.getElementById("edit-type-s").value
+    };
+    try {
+        await fetch(API_URL + "?action=update", { method: "POST", body: JSON.stringify(data) });
+        closeEditModal();
+        await loadQuestions();
+    } catch(e) {
+        alert("儲存失敗，請重試");
+    }
+}
+
+/* ── Export Word ── */
+async function exportWord() {
+    if (selectedQuestions.length === 0) { alert("沒有題目可匯出！"); return; }
+
+    const tf    = selectedQuestions.filter(q => q["Type_simplify"] === "True / False");
+    const mc    = selectedQuestions.filter(q => q["Type_simplify"] === "Multiple choices");
+    const match = selectedQuestions.filter(q => q["Type_simplify"] === "Match");
+
+    const doc = new docx.Document();
+
+    function addSection(title, list) {
+        if (!list.length) return;
+        doc.addSection({
+            children: [
+                new docx.Paragraph({ text: title, heading: docx.HeadingLevel.HEADING_1 }),
+                ...list.map(q => new docx.Paragraph(`${q["NO."]}. ${q["Question"]}`))
+            ]
+        });
+    }
+
+    addSection("True / False", tf);
+    addSection("Multiple Choice", mc);
+    addSection("Match", match);
+
+    doc.addSection({
+        children: [
+            new docx.Paragraph({ text: "答案", heading: docx.HeadingLevel.HEADING_1 }),
+            ...selectedQuestions.map(q => new docx.Paragraph(`${q["NO."]}: ${q["Answer"]}`))
+        ]
+    });
+
+    docx.Packer.toBlob(doc).then(blob => saveAs(blob, "題庫.docx"));
 }
 </script>
-
 </body>
 </html>
